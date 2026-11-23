@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Клининг" />
   <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
@@ -64,9 +64,12 @@
       padding: 0;
     }
 
+    html, body {
+      background-color: var(--bg-primary);
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--bg-primary);
       color: var(--text-primary);
       line-height: 1.38;
       -webkit-font-smoothing: antialiased;
@@ -1624,14 +1627,9 @@
       manifestLink.href = URL.createObjectURL(manifestBlob);
       document.head.appendChild(manifestLink);
 
-      // Sync iOS status bar style with system dark/light mode
-      const darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
-      function updateStatusBarTheme(e) {
-        const metaStatus = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-        if (metaStatus) metaStatus.setAttribute('content', e.matches ? 'black' : 'default');
-      }
-      updateStatusBarTheme(darkMedia);
-      if (darkMedia.addEventListener) darkMedia.addEventListener('change', updateStatusBarTheme);
+      // Ensure status bar stays translucent so iOS adapts text & background dynamically
+      const metaStatus = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+      if (metaStatus) metaStatus.setAttribute('content', 'black-translucent');
 
       if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
         navigator.serviceWorker.register('./sw.js').catch(err => {

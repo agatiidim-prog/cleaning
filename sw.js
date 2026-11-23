@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cleaning-app-v5';
+const CACHE_NAME = 'cleaning-app-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html'
