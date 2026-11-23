@@ -1,0 +1,2922 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Клининг" />
+  <meta name="theme-color" content="#F2F2F7" />
+  <title>Клининг — Чек-лист и учёт визитов</title>
+  <style>
+    :root {
+      --bg-primary: #F2F2F7;
+      --bg-card: #FFFFFF;
+      --bg-glass: rgba(242, 242, 247, 0.88);
+      --text-primary: #000000;
+      --text-secondary: #8E8E93;
+      --text-tertiary: #AEAEB2;
+      --separator: rgba(60, 60, 67, 0.14);
+      --accent-blue: #007AFF;
+      --accent-green: #34C759;
+      --accent-orange: #FF9500;
+      --accent-red: #FF3B30;
+      --accent-purple: #AF52DE;
+      --radius-card: 14px;
+      --radius-pill: 20px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.38;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: calc(88px + var(--safe-bottom));
+      overflow-x: hidden;
+    }
+
+    /* Navigation Bar */
+    .nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 0.5px solid var(--separator);
+      padding-top: calc(10px + var(--safe-top));
+      padding-bottom: 10px;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .nav-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .client-selector-btn {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--bg-card);
+      border: 0.5px solid var(--separator);
+      border-radius: 12px;
+      padding: 8px 12px;
+      flex: 1;
+      min-width: 0;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .client-selector-btn:active {
+      background: #E5E5EA;
+    }
+
+    .client-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      flex-shrink: 0;
+    }
+
+    .client-title-wrap {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .client-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .client-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      border: 0.5px solid var(--separator);
+      background: var(--bg-card);
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .icon-btn.active {
+      background: var(--accent-blue);
+      color: #FFFFFF;
+      border-color: var(--accent-blue);
+    }
+
+    /* Visit Date Strip */
+    .visit-context-bar {
+      margin-top: 9px;
+      background: var(--bg-card);
+      border-radius: 11px;
+      padding: 7px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border: 0.5px solid var(--separator);
+    }
+
+    .visit-context-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .visit-context-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .visit-context-date {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .visit-date-input {
+      border: none;
+      background: #F2F2F7;
+      border-radius: 8px;
+      padding: 5px 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      font-family: inherit;
+    }
+
+    /* Container */
+    .container {
+      padding: 12px 16px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* Mode Switcher: План на сегодня vs Все задачи */
+    .mode-segmented {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      background: #E5E5EA;
+      padding: 3px;
+      border-radius: 11px;
+      margin-bottom: 12px;
+    }
+
+    .mode-seg-btn {
+      border: none;
+      background: transparent;
+      padding: 8px 6px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 9px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .mode-seg-btn.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .mode-badge {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      background: rgba(0, 122, 255, 0.12);
+      color: var(--accent-blue);
+    }
+
+    /* Periodicity Pills (for All Tasks view) */
+    .period-scroll {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      scrollbar-width: none;
+    }
+    .period-scroll::-webkit-scrollbar { display: none; }
+
+    .period-pill {
+      padding: 6px 13px;
+      border-radius: var(--radius-pill);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 500;
+      border: 0.5px solid var(--separator);
+      white-space: nowrap;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .period-pill.active {
+      background: var(--accent-blue);
+      color: #FFFFFF;
+      border-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    /* Progress Summary Card */
+    .summary-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .summary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .summary-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .summary-stats {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-blue);
+    }
+
+    .progress-track {
+      height: 8px;
+      background: #E5E5EA;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-green);
+      border-radius: 99px;
+      transition: width 0.25s ease;
+    }
+
+    .due-breakdown {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .due-chip {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 8px;
+      background: #F2F2F7;
+      color: var(--text-secondary);
+    }
+
+    .due-chip.blue {
+      background: rgba(0, 122, 255, 0.1);
+      color: var(--accent-blue);
+    }
+
+    .due-chip.orange {
+      background: rgba(255, 149, 0, 0.14);
+      color: #C93400;
+    }
+
+    .segmented-control {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: #E5E5EA;
+      padding: 2px;
+      border-radius: 9px;
+    }
+
+    .seg-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 4px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 7px;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .seg-btn.active {
+      background: var(--bg-card);
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Zone Accordion Groups with Select-All Floor Checkbox */
+    .zone-group {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .zone-header {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      user-select: none;
+    }
+
+    .zone-select-all-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 2px solid #C7C7CC;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      color: transparent;
+      transition: all 0.15s ease;
+    }
+
+    .zone-select-all-btn.all-done {
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+      color: #FFFFFF;
+    }
+
+    .zone-select-all-btn.partial {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      background: rgba(0, 122, 255, 0.08);
+    }
+
+    .zone-title-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      min-width: 0;
+    }
+
+    .zone-title-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .zone-chevron {
+      font-size: 11px;
+      color: var(--text-secondary);
+      transition: transform 0.2s ease;
+    }
+
+    .zone-group.collapsed .zone-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .zone-name {
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .zone-badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: #F2F2F7;
+      padding: 2px 8px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .zone-badge.done {
+      background: rgba(52, 199, 89, 0.15);
+      color: #248A3D;
+    }
+
+    .zone-tasks {
+      border-top: 0.5px solid var(--separator);
+    }
+
+    .zone-group.collapsed .zone-tasks {
+      display: none;
+    }
+
+    /* Task Row */
+    .task-row {
+      display: flex;
+      align-items: flex-start;
+      padding: 13px 14px;
+      gap: 12px;
+      border-bottom: 0.5px solid var(--separator);
+      background: var(--bg-card);
+    }
+
+    .task-row:last-child {
+      border-bottom: none;
+    }
+
+    .task-check {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid #C7C7CC;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: #FFFFFF;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .task-row.completed .task-check {
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+      color: #FFFFFF;
+    }
+
+    .task-row.cycle-done .task-check {
+      background: rgba(52, 199, 89, 0.18);
+      border-color: var(--accent-green);
+      color: #248A3D;
+    }
+
+    .task-body {
+      flex: 1;
+      min-width: 0;
+      cursor: pointer;
+    }
+
+    .task-text {
+      font-size: 15px;
+      color: var(--text-primary);
+      word-break: break-word;
+    }
+
+    .task-row.completed .task-text {
+      color: var(--text-secondary);
+      text-decoration: line-through;
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 5px;
+    }
+
+    .meta-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: #F2F2F7;
+      color: var(--text-secondary);
+    }
+
+    .meta-tag.weekly {
+      background: rgba(0, 122, 255, 0.12);
+      color: var(--accent-blue);
+    }
+
+    .meta-tag.monthly {
+      background: rgba(175, 82, 222, 0.12);
+      color: var(--accent-purple);
+    }
+
+    .meta-tag.ondemand {
+      background: rgba(255, 149, 0, 0.14);
+      color: #C93400;
+    }
+
+    .meta-tag.history {
+      background: rgba(52, 199, 89, 0.12);
+      color: #248A3D;
+    }
+
+    .task-note-preview {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #444;
+      background: #F9F9FB;
+      padding: 6px 9px;
+      border-radius: 8px;
+      border-left: 2.5px solid var(--accent-orange);
+    }
+
+    .task-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .mini-action-btn {
+      height: 32px;
+      min-width: 32px;
+      padding: 0 8px;
+      border-radius: 8px;
+      border: none;
+      background: #F2F2F7;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .mini-action-btn.has-note {
+      background: rgba(255, 149, 0, 0.15);
+      color: var(--accent-orange);
+    }
+
+    .mini-action-btn.add-today {
+      background: rgba(0, 122, 255, 0.12);
+      color: var(--accent-blue);
+    }
+
+    .mini-action-btn.delete {
+      background: rgba(255, 59, 48, 0.12);
+      color: var(--accent-red);
+    }
+
+    /* Finish Workday Big CTA */
+    .finish-day-card {
+      margin-top: 10px;
+      margin-bottom: 24px;
+    }
+
+    .finish-day-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      background: var(--accent-green);
+      color: #FFFFFF;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(52, 199, 89, 0.28);
+    }
+
+    .finish-day-btn:active {
+      opacity: 0.88;
+    }
+
+    .finish-day-btn.completed-visit {
+      background: var(--bg-card);
+      color: #248A3D;
+      border: 1.5px solid var(--accent-green);
+      box-shadow: none;
+    }
+
+    /* Standard iOS Buttons */
+    .ios-btn {
+      flex: 1;
+      padding: 13px 14px;
+      border-radius: 12px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .ios-btn.primary {
+      background: var(--accent-blue);
+      color: #FFFFFF;
+    }
+
+    .ios-btn.green {
+      background: var(--accent-green);
+      color: #FFFFFF;
+    }
+
+    .ios-btn.secondary {
+      background: var(--bg-card);
+      color: var(--accent-blue);
+      border: 0.5px solid var(--separator);
+    }
+
+    .ios-btn.danger {
+      background: rgba(255, 59, 48, 0.12);
+      color: var(--accent-red);
+    }
+
+    /* Large Headers */
+    .large-header {
+      padding: calc(16px + var(--safe-top)) 16px 8px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .large-title {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    /* Calendar */
+    .cal-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .cal-month-title {
+      font-size: 17px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      text-align: center;
+    }
+
+    .cal-weekday {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding-bottom: 6px;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      border-radius: 11px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+    }
+
+    .cal-day.other-month { color: var(--text-tertiary); }
+    .cal-day.today { color: var(--accent-blue); font-weight: 700; }
+    .cal-day.selected { background: var(--accent-blue); color: #FFFFFF; font-weight: 600; }
+
+    .cal-dots {
+      display: flex;
+      gap: 3px;
+      margin-top: 3px;
+      height: 5px;
+    }
+
+    .cal-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    .cal-day.selected .cal-dot { background: #FFFFFF !important; }
+
+    /* Cards */
+    .visit-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+
+    .visit-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .visit-client-name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .visit-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .visit-amount {
+      font-size: 16px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .status-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .status-pill {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    .status-pill.planned { background: rgba(0, 122, 255, 0.12); color: var(--accent-blue); }
+    .status-pill.done { background: rgba(52, 199, 89, 0.15); color: #248A3D; }
+    .status-pill.paid { background: rgba(52, 199, 89, 0.15); color: #248A3D; }
+    .status-pill.unpaid { background: rgba(255, 149, 0, 0.15); color: #C93400; }
+
+    .visit-btn-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .visit-small-btn {
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      background: #F2F2F7;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .visit-small-btn.accent {
+      background: rgba(0, 122, 255, 0.12);
+      color: var(--accent-blue);
+    }
+
+    /* Finance Grid */
+    .fin-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .fin-box {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      padding: 14px;
+    }
+
+    .fin-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .fin-value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .fin-value.green { color: #248A3D; }
+    .fin-value.orange { color: #C93400; }
+    .fin-value.blue { color: var(--accent-blue); }
+
+    /* Bottom Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 0.5px solid var(--separator);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding-top: 6px;
+      padding-bottom: calc(6px + var(--safe-bottom));
+    }
+
+    .tab-item {
+      border: none;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: var(--text-secondary);
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .tab-item.active {
+      color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .tab-icon {
+      font-size: 21px;
+      line-height: 1;
+    }
+
+    /* Bottom Sheet Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .sheet {
+      background: var(--bg-primary);
+      width: 100%;
+      max-width: 600px;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 10px 16px calc(22px + var(--safe-bottom));
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.22s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .grabber {
+      width: 36px;
+      height: 5px;
+      border-radius: 99px;
+      background: #C7C7CC;
+      margin: 0 auto 12px;
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .sheet-title {
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .sheet-close {
+      border: none;
+      background: #E5E5EA;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 15px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .form-group {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      border: 0.5px solid var(--separator);
+      background: #F9F9FB;
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text-primary);
+    }
+
+    .form-textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    .weekday-picker {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .wd-btn {
+      padding: 9px 0;
+      border-radius: 9px;
+      border: 0.5px solid var(--separator);
+      background: #F9F9FB;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .wd-btn.active {
+      background: var(--accent-blue);
+      color: #FFFFFF;
+      border-color: var(--accent-blue);
+    }
+
+    .pay-choice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .pay-choice-btn {
+      padding: 12px 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--separator);
+      background: #F9F9FB;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+
+    .pay-choice-btn.selected-paid {
+      background: rgba(52, 199, 89, 0.14);
+      border-color: var(--accent-green);
+      color: #248A3D;
+    }
+
+    .pay-choice-btn.selected-unpaid {
+      background: rgba(255, 149, 0, 0.14);
+      border-color: var(--accent-orange);
+      color: #C93400;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .empty-state {
+      text-align: center;
+      padding: 28px 16px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .history-list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 0.5px solid var(--separator);
+      font-size: 14px;
+    }
+    .history-list-item:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== SCREEN 1: CHECKLIST ==================== -->
+  <div id="screen-checklist" class="screen active">
+    <div class="nav-bar">
+      <div class="nav-top-row">
+        <button class="client-selector-btn" onclick="openClientsModal()">
+          <span class="client-dot" id="header-client-dot"></span>
+          <div class="client-title-wrap">
+            <div class="client-title" id="header-client-name">Загрузка...</div>
+            <div class="client-subtitle" id="header-client-sub"></div>
+          </div>
+          <span style="color: var(--text-secondary); font-size: 12px;">▼</span>
+        </button>
+        <button class="icon-btn" id="btn-edit-mode" onclick="toggleEditMode()" title="Редактировать список">✎</button>
+        <button class="icon-btn" onclick="openAddTaskModal()" title="Добавить задачу">+</button>
+      </div>
+
+      <div class="visit-context-bar">
+        <div class="visit-context-info">
+          <span class="visit-context-label">Рабочий день / визит</span>
+          <span class="visit-context-date" id="visit-context-status">Сегодня</span>
+        </div>
+        <input type="date" id="checklist-date-picker" class="visit-date-input" onchange="onChecklistDateChange(this.value)" />
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Mode Switcher: План на сегодня vs Весь справочник -->
+      <div class="mode-segmented">
+        <button class="mode-seg-btn active" id="mode-btn-today" onclick="setChecklistViewMode('today')">
+          <span>План на визит</span>
+          <span class="mode-badge" id="today-plan-badge">0/0</span>
+        </button>
+        <button class="mode-seg-btn" id="mode-btn-all" onclick="setChecklistViewMode('all')">
+          <span>Все задачи</span>
+        </button>
+      </div>
+
+      <!-- Period Pills (shown only in "Все задачи" mode) -->
+      <div class="period-scroll" id="period-tabs" style="display:none;"></div>
+
+      <!-- Progress Card -->
+      <div class="summary-card">
+        <div class="summary-header">
+          <span class="summary-title" id="period-summary-title">Прогресс уборки</span>
+          <span class="summary-stats" id="period-summary-stats">0 из 0 (0%)</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="period-progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="due-breakdown" id="due-breakdown-chips"></div>
+        <div class="segmented-control">
+          <button class="seg-btn active" data-filter="all" onclick="setTaskFilter('all')">Все</button>
+          <button class="seg-btn" data-filter="todo" onclick="setTaskFilter('todo')">Осталось</button>
+          <button class="seg-btn" data-filter="done" onclick="setTaskFilter('done')">Выполнено</button>
+        </div>
+      </div>
+
+      <!-- Zones Accordion List -->
+      <div id="zones-container"></div>
+
+      <!-- Finish Workday Button -->
+      <div class="finish-day-card">
+        <button class="finish-day-btn" id="btn-finish-workday" onclick="openFinishWorkdayModal()">
+          ✓ Завершить рабочий день
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 2: CALENDAR ==================== -->
+  <div id="screen-calendar" class="screen">
+    <div class="large-header">
+      <div class="large-title">Календарь</div>
+    </div>
+    <div class="container">
+      <div class="summary-card">
+        <div class="cal-controls">
+          <button class="icon-btn" onclick="changeCalMonth(-1)">‹</button>
+          <div class="cal-month-title" id="cal-month-label">Месяц</div>
+          <button class="icon-btn" onclick="changeCalMonth(1)">›</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin: 14px 0 8px;">
+        <h3 style="font-size:17px; font-weight:600;" id="selected-day-title">Визиты на дату</h3>
+        <button class="ios-btn primary" style="flex:0 0 auto; padding: 8px 14px; font-size:13px;" onclick="openAddVisitModal()">+ Визит</button>
+      </div>
+
+      <div id="day-visits-list"></div>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 3: FINANCE & BACKUP ==================== -->
+  <div id="screen-finance" class="screen">
+    <div class="large-header">
+      <div class="large-title">Финансы</div>
+    </div>
+    <div class="container">
+      <div class="summary-card">
+        <div class="cal-controls" style="margin-bottom:0;">
+          <button class="icon-btn" onclick="changeFinMonth(-1)">‹</button>
+          <div class="cal-month-title" id="fin-month-label">Месяц</div>
+          <button class="icon-btn" onclick="changeFinMonth(1)">›</button>
+        </div>
+      </div>
+
+      <div class="fin-grid" id="fin-summary-grid"></div>
+
+      <h3 style="font-size:17px; font-weight:600; margin: 14px 0 8px;">По объектам за месяц</h3>
+      <div id="fin-by-client-list"></div>
+
+      <h3 style="font-size:17px; font-weight:600; margin: 18px 0 8px;">Резервная копия данных</h3>
+      <div class="summary-card">
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">
+          Сохраните копию в «Файлы» на iPhone, чтобы при необходимости восстановить все объекты, историю уборок и финансы.
+        </p>
+        <div style="display:flex; gap:10px;">
+          <button class="ios-btn primary" onclick="exportBackupJSON()">⬇ Сохранить копию</button>
+          <button class="ios-btn secondary" onclick="document.getElementById('import-json-input').click()">⬆ Восстановить</button>
+          <input type="file" id="import-json-input" accept=".json,application/json" style="display:none" onchange="importBackupJSON(event)" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== BOTTOM TAB BAR ==================== -->
+  <nav class="tab-bar">
+    <button class="tab-item active" data-screen="checklist" onclick="switchScreen('checklist')">
+      <span class="tab-icon">☑</span>
+      <span>Уборка</span>
+    </button>
+    <button class="tab-item" data-screen="calendar" onclick="switchScreen('calendar')">
+      <span class="tab-icon">📅</span>
+      <span>Календарь</span>
+    </button>
+    <button class="tab-item" data-screen="finance" onclick="switchScreen('finance')">
+      <span class="tab-icon">₽</span>
+      <span>Финансы</span>
+    </button>
+  </nav>
+
+  <!-- ==================== MODAL: FINISH WORKDAY ==================== -->
+  <div class="modal-backdrop" id="modal-finish-day" onclick="closeModalOnBackdrop(event, 'modal-finish-day')">
+    <div class="sheet">
+      <div class="grabber"></div>
+      <div class="sheet-header">
+        <div class="sheet-title">Завершить рабочий день</div>
+        <button class="sheet-close" onclick="closeModal('modal-finish-day')">✕</button>
+      </div>
+
+      <div class="form-group" id="finish-summary-box"></div>
+
+      <div class="form-group" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div>
+          <label class="form-label">Базовая ставка (₽)</label>
+          <input type="number" id="fd-base-amount" class="form-input" />
+        </div>
+        <div>
+          <label class="form-label">Доплата (люстры, баня и др.)</label>
+          <input type="number" id="fd-extra-amount" class="form-input" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Комментарий к визиту (необязательно)</label>
+        <input type="text" id="fd-note" class="form-input" placeholder="Например: помыла люстры в гостиной" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Оплата за сегодня получена?</label>
+        <div class="pay-choice-grid">
+          <button type="button" class="pay-choice-btn selected-paid" id="fd-btn-paid" onclick="selectFinishPaid(true)">✓ Да, оплачено</button>
+          <button type="button" class="pay-choice-btn" id="fd-btn-unpaid" onclick="selectFinishPaid(false)">⏳ Позже (ожидает)</button>
+        </div>
+      </div>
+
+      <button class="ios-btn green" style="width:100%; padding:15px; font-size:16px;" onclick="confirmFinishWorkday()">
+        Подтвердить и закрыть день
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CLIENTS ==================== -->
+  <div class="modal-backdrop" id="modal-clients" onclick="closeModalOnBackdrop(event, 'modal-clients')">
+    <div class="sheet">
+      <div class="grabber"></div>
+      <div class="sheet-header">
+        <div class="sheet-title">Объекты (клиенты)</div>
+        <button class="sheet-close" onclick="closeModal('modal-clients')">✕</button>
+      </div>
+      <div id="clients-list-container"></div>
+      <button class="ios-btn primary" style="width:100%; margin-top:10px;" onclick="openClientFormModal()">+ Добавить новый объект</button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CLIENT FORM ==================== -->
+  <div class="modal-backdrop" id="modal-client-form" onclick="closeModalOnBackdrop(event, 'modal-client-form')">
+    <div class="sheet">
+      <div class="grabber"></div>
+      <div class="sheet-header">
+        <div class="sheet-title" id="client-form-title">Новый объект</div>
+        <button class="sheet-close" onclick="closeModal('modal-client-form')">✕</button>
+      </div>
+      <input type="hidden" id="edit-client-id" />
+      <div class="form-group">
+        <label class="form-label">Название объекта</label>
+        <input type="text" id="cf-name" class="form-input" placeholder="Например: Основной дом" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Адрес / заметка (код домофона, особенности)</label>
+        <input type="text" id="cf-note" class="form-input" placeholder="Например: КП Лесной, код 1234" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Дни регулярного посещения</label>
+        <div class="weekday-picker" id="cf-weekdays">
+          <button type="button" class="wd-btn" data-wd="1" onclick="toggleWdBtn(this)">Пн</button>
+          <button type="button" class="wd-btn" data-wd="2" onclick="toggleWdBtn(this)">Вт</button>
+          <button type="button" class="wd-btn" data-wd="3" onclick="toggleWdBtn(this)">Ср</button>
+          <button type="button" class="wd-btn" data-wd="4" onclick="toggleWdBtn(this)">Чт</button>
+          <button type="button" class="wd-btn" data-wd="5" onclick="toggleWdBtn(this)">Пт</button>
+          <button type="button" class="wd-btn" data-wd="6" onclick="toggleWdBtn(this)">Сб</button>
+          <button type="button" class="wd-btn" data-wd="0" onclick="toggleWdBtn(this)">Вс</button>
+        </div>
+      </div>
+      <div class="form-group" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div>
+          <label class="form-label">Формат / время</label>
+          <input type="text" id="cf-duration" class="form-input" placeholder="целый день" />
+        </div>
+        <div>
+          <label class="form-label">Ставка за визит (₽)</label>
+          <input type="number" id="cf-rate" class="form-input" placeholder="12000" />
+        </div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="ios-btn danger" id="cf-delete-btn" style="display:none;" onclick="deleteClient()">Удалить</button>
+        <button class="ios-btn primary" onclick="saveClientForm()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: TASK FORM ==================== -->
+  <div class="modal-backdrop" id="modal-task-form" onclick="closeModalOnBackdrop(event, 'modal-task-form')">
+    <div class="sheet">
+      <div class="grabber"></div>
+      <div class="sheet-header">
+        <div class="sheet-title" id="task-form-title">Новая задача</div>
+        <button class="sheet-close" onclick="closeModal('modal-task-form')">✕</button>
+      </div>
+      <input type="hidden" id="edit-task-id" />
+      <div class="form-group">
+        <label class="form-label">Описание обязанности</label>
+        <textarea id="tf-text" class="form-textarea" placeholder="Например: Протереть подоконники влажной тряпкой"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Периодичность</label>
+        <select id="tf-period" class="form-select" onchange="onTaskPeriodSelectChange(this.value)">
+          <option value="daily">Ежедневные (каждый визит)</option>
+          <option value="weekly">Еженедельные (и раз в 2 недели)</option>
+          <option value="monthly">Ежемесячные (и раз в 2 месяца)</option>
+          <option value="quarterly">Ежеквартальные (раз в 3 месяца)</option>
+          <option value="seasonal">Сезонные</option>
+          <option value="ondemand">По мере необходимости / по запросу</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Через сколько дней повторять автоматически</label>
+        <select id="tf-interval-days" class="form-select">
+          <option value="0">Каждый визит (для ежедневных) / вручную</option>
+          <option value="7">Раз в 1 неделю (через 7 дней)</option>
+          <option value="14">Раз в 2 недели (через 14 дней)</option>
+          <option value="30">Раз в 1 месяц (через 30 дней)</option>
+          <option value="60">Раз в 2 месяца (через 60 дней)</option>
+          <option value="90">Раз в 3 месяца (через 90 дней)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Этаж / зона</label>
+        <input type="text" id="tf-zone" class="form-input" list="zones-datalist" placeholder="Выберите или введите новую зону" />
+        <datalist id="zones-datalist"></datalist>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Подпись графика (необязательно)</label>
+        <input type="text" id="tf-schedule" class="form-input" placeholder="Например: 1 раз в 2 недели" />
+      </div>
+      <button class="ios-btn primary" style="width:100%;" onclick="saveTaskForm()">Сохранить задачу</button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: TASK NOTE & HISTORY ==================== -->
+  <div class="modal-backdrop" id="modal-task-note" onclick="closeModalOnBackdrop(event, 'modal-task-note')">
+    <div class="sheet">
+      <div class="grabber"></div>
+      <div class="sheet-header">
+        <div class="sheet-title">Заметка и история</div>
+        <button class="sheet-close" onclick="closeModal('modal-task-note')">✕</button>
+      </div>
+      <div id="note-task-title" style="font-size:15px; font-weight:600; margin-bottom:10px;"></div>
+      <div class="form-group">
+        <label class="form-label">Постоянная заметка к задаче</label>
+        <textarea id="note-textarea" class="form-textarea" placeholder="Например: Закончилось средство, купить в следующий раз"></textarea>
+      </div>
+      <button class="ios-btn primary" style="width:100%; margin-bottom:16px;" onclick="saveTaskNote()">Сохранить заметку</button>
+
+      <div class="form-group">
+        <label class="form-label">Когда выполнялось (история)</label>
+        <div id="task-history-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: VISIT FORM / EDIT ==================== -->
+  <div class="modal-backdrop" id="modal-visit-form" onclick="closeModalOnBackdrop(event, 'modal-visit-form')">
+    <div class="sheet">
+      <div class="grabber"></div>
+      <div class="sheet-header">
+        <div class="sheet-title" id="visit-modal-title">Визит</div>
+        <button class="sheet-close" onclick="closeModal('modal-visit-form')">✕</button>
+      </div>
+      <input type="hidden" id="vf-visit-id" />
+      <input type="hidden" id="vf-is-virtual" />
+      <div class="form-group">
+        <label class="form-label">Объект (клиент)</label>
+        <select id="vf-client-id" class="form-select"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Дата визита</label>
+        <input type="date" id="vf-date" class="form-input" />
+      </div>
+      <div class="form-group" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div>
+          <label class="form-label">Базовая ставка (₽)</label>
+          <input type="number" id="vf-base-amount" class="form-input" />
+        </div>
+        <div>
+          <label class="form-label">Доплата (₽)</label>
+          <input type="number" id="vf-extra-amount" class="form-input" placeholder="0" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Комментарий</label>
+        <input type="text" id="vf-note" class="form-input" placeholder="Заметка по визиту" />
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="ios-btn danger" id="vf-delete-btn" style="display:none;" onclick="deleteOrCancelVisit()">Удалить / отменить</button>
+        <button class="ios-btn primary" onclick="saveVisitForm()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. PWA MANIFEST & SERVICE WORKER (HTTPS READY)
+    ========================================================================= */
+    (function initPWA() {
+      const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#007AFF"/><path d="M152 264l68 68 140-148" fill="none" stroke="#FFFFFF" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      const iconUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgIcon)));
+
+      const appleTouchIcon = document.createElement('link');
+      appleTouchIcon.rel = 'apple-touch-icon';
+      appleTouchIcon.href = iconUrl;
+      document.head.appendChild(appleTouchIcon);
+
+      const manifest = {
+        name: 'Клининг — Чек-лист и визиты',
+        short_name: 'Клининг',
+        start_url: './',
+        display: 'standalone',
+        background_color: '#F2F2F7',
+        theme_color: '#F2F2F7',
+        icons: [
+          { src: iconUrl, sizes: '192x192', type: 'image/svg+xml' },
+          { src: iconUrl, sizes: '512x512', type: 'image/svg+xml' }
+        ]
+      };
+      const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+      const manifestLink = document.createElement('link');
+      manifestLink.rel = 'manifest';
+      manifestLink.href = URL.createObjectURL(manifestBlob);
+      document.head.appendChild(manifestLink);
+
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.warn('Service Worker registration failed:', err);
+        });
+      }
+    })();
+
+    /* =========================================================================
+       2. CONSTANTS & INITIAL DEFAULT DATA (STRICTLY USER TASKS)
+    ========================================================================= */
+    const STORAGE_KEY = 'cleaning_pro_state_v3';
+
+    const PERIODS = [
+      { id: 'daily', label: 'Ежедневные' },
+      { id: 'weekly', label: 'Еженедельные' },
+      { id: 'monthly', label: 'Ежемесячные' },
+      { id: 'quarterly', label: 'Ежеквартальные' },
+      { id: 'seasonal', label: 'Сезонные' },
+      { id: 'ondemand', label: 'По необходимости' }
+    ];
+
+    const DEFAULT_MAIN_TASKS = [
+      // МИНУС ПЕРВЫЙ ЭТАЖ
+      { id: 'm1_1', zone: 'Минус 1 этаж', period: 'daily', intervalDays: 0, text: 'Пыль — влажная тряпка, пол — пропылесосить и протереть (кроме хаммама, сауны, бассейна, котельной, гаража)', schedule: '', note: '' },
+      { id: 'm1_2', zone: 'Минус 1 этаж', period: 'daily', intervalDays: 0, text: 'Общий порядок (складывать вещи на их места)', schedule: '', note: '' },
+      { id: 'm1_3', zone: 'Минус 1 этаж', period: 'daily', intervalDays: 0, text: 'Туалет — раковина, сантехника, полотенце для рук (запасное в шкафу на -1)', schedule: '', note: '' },
+      { id: 'm1_4', zone: 'Минус 1 этаж', period: 'daily', intervalDays: 0, text: 'Постирочная — стиральная машинка снаружи', schedule: '', note: '' },
+      { id: 'm1_5', zone: 'Минус 1 этаж', period: 'daily', intervalDays: 0, text: 'Гладильная — глажка', schedule: '', note: '' },
+      { id: 'm1_6', zone: 'Минус 1 этаж', period: 'daily', intervalDays: 0, text: 'В шкафу — все для гостей и все на минус 1', schedule: '', note: '' },
+      { id: 'm1_7', zone: 'Минус 1 этаж', period: 'weekly', intervalDays: 7, text: 'Постирочная — фильтр в сушилке и вода из неё', schedule: '1 раз в неделю', note: '' },
+      { id: 'm1_8', zone: 'Минус 1 этаж', period: 'weekly', intervalDays: 14, text: 'Душ — сантехника, плитка на стенах и полу и слив', schedule: '1 раз в 2 недели', note: '' },
+      { id: 'm1_9', zone: 'Минус 1 этаж', period: 'monthly', intervalDays: 30, text: 'Стены в туалете, душе, постирочной', schedule: '1 раз в месяц', note: '' },
+      { id: 'm1_10', zone: 'Минус 1 этаж', period: 'monthly', intervalDays: 60, text: 'Чистка стиральной машины со средством', schedule: '1 раз в 2 мес либо по необходимости', note: '' },
+      { id: 'm1_11', zone: 'Минус 1 этаж', period: 'monthly', intervalDays: 60, text: 'Гладильная — чистить утюг', schedule: '1 раз в 2 месяца', note: '' },
+      { id: 'm1_12', zone: 'Минус 1 этаж', period: 'monthly', intervalDays: 60, text: 'Пылесос — чистить щетку и фильтр', schedule: '1 раз в 2 мес', note: '' },
+      { id: 'm1_13', zone: 'Минус 1 этаж', period: 'monthly', intervalDays: 30, text: 'Под диваном в комнате', schedule: '1 раз в 1 мес', note: '' },
+      { id: 'm1_14', zone: 'Минус 1 этаж', period: 'ondemand', intervalDays: 0, text: 'Гладильная — чехол на гладилке стирать', schedule: 'По мере загрязнения', note: '' },
+      { id: 'm1_15', zone: 'Минус 1 этаж', period: 'ondemand', intervalDays: 0, text: 'Пылесос — очищать контейнер', schedule: 'По мере загрязнения', note: '' },
+
+      // ПЕРВЫЙ ЭТАЖ
+      { id: 'f1_1', zone: 'Первый этаж', period: 'daily', intervalDays: 0, text: 'Пыль влажная тряпка, зеркала и зеркальные поверхности, фасады глянцевые, подоконники', schedule: '', note: '' },
+      { id: 'f1_2', zone: 'Первый этаж', period: 'daily', intervalDays: 0, text: 'Пол (1 раз роботы, 1 раз швабра) и труднодоступные места: под шторами, углы, за тумбами, зона детского стула, за диванами и немного под ними не двигая их, под креслом в гостиной, за торшерами', schedule: '', note: '' },
+      { id: 'f1_3', zone: 'Первый этаж', period: 'daily', intervalDays: 0, text: 'Общий порядок (складывать вещи на их места)', schedule: '', note: '' },
+      { id: 'f1_4', zone: 'Первый этаж', period: 'daily', intervalDays: 0, text: 'Прихожая — столик и консоль, под ковриками придверными', schedule: '', note: '' },
+      { id: 'f1_5', zone: 'Первый этаж', period: 'daily', intervalDays: 0, text: 'Туалет — сантехника, раковина и вокруг, зеркало, полотенца для рук и полотенца в корзинке у раковины пополнять (запасные в шкафу рядом), стирать полотенца из корзины под раковиной', schedule: '', note: '' },
+      { id: 'f1_6', zone: 'Первый этаж', period: 'daily', intervalDays: 0, text: 'Кухня — остров, столешница, фартук, плита и вокруг от жира, кофемашина (поддон, вода), мойка, кран и вокруг мойки от белого налета и брызг, полотенца (запасные под плитой)', schedule: '', note: '' },
+      { id: 'f1_7', zone: 'Первый этаж', period: 'daily', intervalDays: 0, text: 'Гостиная — столики, комод', schedule: '', note: '' },
+      { id: 'f1_8', zone: 'Первый этаж', period: 'daily', intervalDays: 0, text: 'Комната кота — пакет из туалета, пеленки собаки, миски кота', schedule: '', note: '' },
+      { id: 'f1_9', zone: 'Первый этаж', period: 'daily', intervalDays: 0, text: 'Кабинет — пылесосить два раза, мыть пол 1 раз, подоконники, пыль, порядок на столах, журнальные столики', schedule: '', note: '' },
+      { id: 'f1_10', zone: 'Первый этаж', period: 'weekly', intervalDays: 7, text: 'Пол под коврами', schedule: '1 раз в неделю', note: '' },
+      { id: 'f1_11', zone: 'Первый этаж', period: 'weekly', intervalDays: 7, text: 'Прихожая — робот-пылесос менять и выливать воду, чистить площадку', schedule: '1 раз в неделю', note: '' },
+      { id: 'f1_12', zone: 'Первый этаж', period: 'weekly', intervalDays: 7, text: 'Туалет — стены', schedule: '1 раз в неделю', note: '' },
+      { id: 'f1_13', zone: 'Первый этаж', period: 'monthly', intervalDays: 30, text: 'Двери и откосы', schedule: '1 раз в месяц', note: '' },
+      { id: 'f1_14', zone: 'Первый этаж', period: 'monthly', intervalDays: 30, text: 'Прихожая — шкафы протирать полки, входная дверь и за пуфиком', schedule: '1 раз в месяц', note: '' },
+      { id: 'f1_15', zone: 'Первый этаж', period: 'monthly', intervalDays: 60, text: 'Прихожая — пылесос чистить щетку и фильтр', schedule: '1 раз в 2 мес', note: '' },
+      { id: 'f1_16', zone: 'Первый этаж', period: 'monthly', intervalDays: 30, text: 'Туалет — протирать полотенцесушитель', schedule: '1 раз в 1 мес', note: '' },
+      { id: 'f1_17', zone: 'Первый этаж', period: 'monthly', intervalDays: 30, text: 'Кухня — чайник от накипи (лимонная кислота)', schedule: '1 раз в месяц', note: '' },
+      { id: 'f1_18', zone: 'Первый этаж', period: 'monthly', intervalDays: 30, text: 'Кухня — холодильник протереть полки', schedule: '1 раз в месяц', note: '' },
+      { id: 'f1_19', zone: 'Первый этаж', period: 'monthly', intervalDays: 60, text: 'Кухня — внутри кухонных шкафов', schedule: '1 раз в 2 месяца', note: '' },
+      { id: 'f1_20', zone: 'Первый этаж', period: 'monthly', intervalDays: 30, text: 'Кабинет — под диваном', schedule: '1 раз в 1 мес', note: '' },
+      { id: 'f1_21', zone: 'Первый этаж', period: 'monthly', intervalDays: 30, text: 'Кухня — вытяжка, микроволновка, духовка', schedule: 'Уточнить график', note: '' },
+      { id: 'f1_22', zone: 'Первый этаж', period: 'ondemand', intervalDays: 0, text: 'Прихожая — пылесос очищать', schedule: 'По мере загрязнения', note: '' },
+      { id: 'f1_23', zone: 'Первый этаж', period: 'ondemand', intervalDays: 0, text: 'Гостиная — под диванами', schedule: 'По запросу', note: '' },
+      { id: 'f1_24', zone: 'Первый этаж', period: 'ondemand', intervalDays: 0, text: 'Гостиная — покрывала, пледы и наволочки стирать', schedule: 'По мере загрязнения', note: '' },
+
+      // ВТОРОЙ ЭТАЖ
+      { id: 's2_1', zone: 'Второй этаж', period: 'daily', intervalDays: 0, text: 'Пыль влажная тряпка, зеркала и зеркальные поверхности, подоконники', schedule: '', note: '' },
+      { id: 's2_2', zone: 'Второй этаж', period: 'daily', intervalDays: 0, text: 'Пол (1 раз робот-пылесос, 1 раз швабра), труднодоступные места под шторами, за мебелью, под кроватями', schedule: '', note: '' },
+      { id: 's2_3', zone: 'Второй этаж', period: 'daily', intervalDays: 0, text: 'Общий порядок (складывать вещи на их места)', schedule: '', note: '' },
+      { id: 's2_4', zone: 'Второй этаж', period: 'daily', intervalDays: 0, text: 'Ванная — раковина и вокруг, сантехника, ванна, стены в душевой и стекло, полотенце для рук (запасное в шкафу на 1), детская ванночка, зеркало', schedule: '', note: '' },
+      { id: 's2_5', zone: 'Второй этаж', period: 'weekly', intervalDays: 14, text: 'Спальня — постельное белье', schedule: '1 раз в 2 недели', note: '' },
+      { id: 's2_6', zone: 'Второй этаж', period: 'weekly', intervalDays: 14, text: 'Детская большая — постельное белье', schedule: '1 раз в 2 недели или реже', note: '' },
+      { id: 's2_7', zone: 'Второй этаж', period: 'weekly', intervalDays: 14, text: 'Детская маленькая — постельное белье', schedule: '1 раз в 2 недели', note: '' },
+      { id: 's2_8', zone: 'Второй этаж', period: 'weekly', intervalDays: 7, text: 'Гардероб — робот-пылесос менять и выливать воду, чистить площадку', schedule: '1 раз в неделю', note: '' },
+      { id: 's2_9', zone: 'Второй этаж', period: 'weekly', intervalDays: 7, text: 'Ванная — слив в душе', schedule: '1 раз в неделю', note: '' },
+      { id: 's2_10', zone: 'Второй этаж', period: 'weekly', intervalDays: 14, text: 'Ванная — полотенца для ног (запас в гардеробе)', schedule: '1 раз в 2 недели', note: '' },
+      { id: 's2_11', zone: 'Второй этаж', period: 'monthly', intervalDays: 30, text: 'Шкафы протирать полки', schedule: '1 раз в месяц', note: '' },
+      { id: 's2_12', zone: 'Второй этаж', period: 'monthly', intervalDays: 30, text: 'Детская большая — выдвинуть ящики под кроватью и протереть под ней, за телевизором подвинуть консоль', schedule: '1 раз в месяц', note: '' },
+      { id: 's2_13', zone: 'Второй этаж', period: 'monthly', intervalDays: 30, text: 'Ванная — стены остальные и полотенцесушитель протирать', schedule: '1 раз в 1 мес', note: '' },
+      { id: 's2_14', zone: 'Второй этаж', period: 'monthly', intervalDays: 30, text: 'Спальня, детская большая, гардероб — шкафы и полки', schedule: 'Уточнить график', note: '' },
+      { id: 's2_15', zone: 'Второй этаж', period: 'quarterly', intervalDays: 90, text: 'Спальня — покрывало и наволочки стирать', schedule: '1 раз в 3 мес', note: '' },
+      { id: 's2_16', zone: 'Второй этаж', period: 'quarterly', intervalDays: 90, text: 'Детская большая — покрывало и наволочки стирать', schedule: '1 раз в 3 мес', note: '' },
+      { id: 's2_17', zone: 'Второй этаж', period: 'ondemand', intervalDays: 0, text: 'Ванная — обработка от плесени', schedule: 'По запросу', note: '' },
+
+      // ОБЩЕЕ ПО ДОМУ
+      { id: 'all_1', zone: 'Общее по дому', period: 'daily', intervalDays: 0, text: 'Мусор вынести', schedule: '', note: '' },
+      { id: 'all_2', zone: 'Общее по дому', period: 'daily', intervalDays: 0, text: 'Лестница и зона бонсай с -1 до 2 этажа влажной тряпкой', schedule: '', note: '' },
+      { id: 'all_3', zone: 'Общее по дому', period: 'daily', intervalDays: 0, text: 'Паутина', schedule: '', note: '' },
+      { id: 'all_4', zone: 'Общее по дому', period: 'daily', intervalDays: 0, text: 'Следить за расходниками в туалетах', schedule: '', note: '' },
+      { id: 'all_5', zone: 'Общее по дому', period: 'daily', intervalDays: 0, text: 'Стирка постельного, полотенец', schedule: '', note: '' },
+      { id: 'all_6', zone: 'Общее по дому', period: 'ondemand', intervalDays: 0, text: 'Лестница — оргстекло', schedule: 'По мере загрязнения', note: '' },
+      { id: 'all_7', zone: 'Общее по дому', period: 'ondemand', intervalDays: 0, text: 'Собачьи лежанки, подстилки стирать', schedule: 'По мере загрязнения', note: '' },
+      { id: 'all_8', zone: 'Общее по дому', period: 'ondemand', intervalDays: 0, text: 'Люстры мыть', schedule: 'По запросу — доп. плата', note: '' },
+      { id: 'all_9', zone: 'Общее по дому', period: 'ondemand', intervalDays: 0, text: 'Баня', schedule: 'По запросу — доп. плата', note: '' },
+      { id: 'all_10', zone: 'Общее по дому', period: 'seasonal', intervalDays: 0, text: 'Окна — выезжает специалист', schedule: 'Сезонно', note: '' },
+      { id: 'all_11', zone: 'Общее по дому', period: 'ondemand', intervalDays: 0, text: 'Ковры и мебель — химчистка (кроме экстренных случаев)', schedule: 'По запросу', note: '' }
+    ];
+
+    function getDefaultState() {
+      const today = toISODate(new Date());
+      return {
+        version: 3,
+        activeClientId: 'client_main',
+        viewMode: 'today', // 'today' | 'all'
+        activePeriod: 'daily',
+        taskFilter: 'all',
+        editMode: false,
+        checklistDate: today,
+        calYear: new Date().getFullYear(),
+        calMonth: new Date().getMonth(),
+        selectedCalDate: today,
+        finYear: new Date().getFullYear(),
+        finMonth: new Date().getMonth(),
+        collapsedZones: {},
+        // Pinned extra/on-demand tasks for specific visit: { "clientId_YYYY-MM-DD": ["taskId", ...] }
+        pinnedForVisit: {},
+        clients: [
+          {
+            id: 'client_main',
+            name: 'Основной дом (3 этажа)',
+            note: 'Пн и Чт • целый день',
+            weekdays: [1, 4],
+            duration: 'целый день',
+            baseRate: 12000,
+            color: '#007AFF',
+            tasks: JSON.parse(JSON.stringify(DEFAULT_MAIN_TASKS))
+          },
+          {
+            id: 'client_2',
+            name: 'Квартира №2',
+            note: 'Шаблон объекта',
+            weekdays: [],
+            duration: 'полдня',
+            baseRate: 5000,
+            color: '#34C759',
+            tasks: []
+          },
+          {
+            id: 'client_3',
+            name: 'Дом №3',
+            note: 'Шаблон объекта',
+            weekdays: [],
+            duration: 'целый день',
+            baseRate: 10000,
+            color: '#AF52DE',
+            tasks: []
+          }
+        ],
+        completions: [],
+        visits: []
+      };
+    }
+
+    /* =========================================================================
+       3. STATE & DATE HELPERS
+    ========================================================================= */
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return getDefaultState();
+        const parsed = JSON.parse(raw);
+        if (!parsed.clients || !Array.isArray(parsed.clients) || parsed.clients.length === 0) {
+          return getDefaultState();
+        }
+        parsed.completions = Array.isArray(parsed.completions) ? parsed.completions : [];
+        parsed.visits = Array.isArray(parsed.visits) ? parsed.visits : [];
+        parsed.collapsedZones = parsed.collapsedZones || {};
+        parsed.pinnedForVisit = parsed.pinnedForVisit || {};
+        if (!parsed.viewMode) parsed.viewMode = 'today';
+        if (!parsed.checklistDate) parsed.checklistDate = toISODate(new Date());
+        if (!parsed.selectedCalDate) parsed.selectedCalDate = toISODate(new Date());
+        return parsed;
+      } catch (e) {
+        return getDefaultState();
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        alert('Ошибка сохранения в память браузера. Рекомендуем сохранить резервную копию.');
+      }
+    }
+
+    function toISODate(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function parseISODate(str) {
+      const [y, m, d] = str.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function diffDays(dateStrA, dateStrB) {
+      const a = parseISODate(dateStrA);
+      const b = parseISODate(dateStrB);
+      return Math.round((b - a) / (1000 * 60 * 60 * 24));
+    }
+
+    function formatRuDate(isoStr) {
+      if (!isoStr) return '';
+      const d = parseISODate(isoStr);
+      return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+    }
+
+    function formatFullRuDate(isoStr) {
+      if (!isoStr) return '';
+      const d = parseISODate(isoStr);
+      return d.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'long' });
+    }
+
+    function getActiveClient() {
+      let c = state.clients.find(x => x.id === state.activeClientId);
+      if (!c) {
+        c = state.clients[0];
+        state.activeClientId = c.id;
+      }
+      return c;
+    }
+
+    function getPinnedKey(clientId, dateStr) {
+      return `${clientId}_${dateStr}`;
+    }
+
+    function isTaskPinnedForVisit(clientId, taskId, dateStr) {
+      const arr = state.pinnedForVisit[getPinnedKey(clientId, dateStr)] || [];
+      return arr.includes(taskId);
+    }
+
+    function togglePinTaskForVisit(taskId) {
+      const client = getActiveClient();
+      const key = getPinnedKey(client.id, state.checklistDate);
+      if (!state.pinnedForVisit[key]) state.pinnedForVisit[key] = [];
+      const idx = state.pinnedForVisit[key].indexOf(taskId);
+      if (idx === -1) {
+        state.pinnedForVisit[key].push(taskId);
+      } else {
+        state.pinnedForVisit[key].splice(idx, 1);
+      }
+      saveState();
+      renderChecklistScreen();
+    }
+
+    /* =========================================================================
+       4. SMART PERIODICITY & "TODAY PLAN" ENGINE
+    ========================================================================= */
+    function getTaskStatus(clientId, task, targetDate) {
+      const taskLogs = state.completions
+        .filter(c => c.clientId === clientId && c.taskId === task.id)
+        .sort((a, b) => b.visitDate.localeCompare(a.visitDate));
+
+      const exactMatch = taskLogs.find(c => c.visitDate === targetDate);
+      const lastLog = taskLogs[0] || null;
+      const pinned = isTaskPinnedForVisit(clientId, task.id, targetDate);
+
+      if (exactMatch) {
+        return {
+          checkedToday: true,
+          doneInCycle: true,
+          isDueToday: true,
+          lastDate: exactMatch.visitDate,
+          badgeText: task.schedule || 'Выполнено сегодня'
+        };
+      }
+
+      // Daily tasks: always due on every visit
+      if (task.period === 'daily') {
+        return {
+          checkedToday: false,
+          doneInCycle: false,
+          isDueToday: true,
+          lastDate: lastLog ? lastLog.visitDate : null,
+          badgeText: ''
+        };
+      }
+
+      // Seasonal / On-demand: due only if pinned for today's visit
+      if (task.period === 'seasonal' || task.period === 'ondemand') {
+        return {
+          checkedToday: false,
+          doneInCycle: false,
+          isDueToday: pinned,
+          lastDate: lastLog ? lastLog.visitDate : null,
+          badgeText: lastLog ? `${task.schedule || 'По запросу'} • было ${formatRuDate(lastLog.visitDate)}` : (task.schedule || 'По запросу')
+        };
+      }
+
+      // Periodic tasks: weekly (7/14), monthly (30/60), quarterly (90)
+      const interval = Number(task.intervalDays) || (task.period === 'weekly' ? 7 : task.period === 'monthly' ? 30 : 90);
+      if (!lastLog) {
+        return {
+          checkedToday: false,
+          doneInCycle: false,
+          isDueToday: true,
+          lastDate: null,
+          badgeText: `${task.schedule || 'Периодическая'} • пора сделать`
+        };
+      }
+
+      const elapsed = diffDays(lastLog.visitDate, targetDate);
+      if (elapsed >= 0 && elapsed < interval) {
+        const left = interval - elapsed;
+        return {
+          checkedToday: false,
+          doneInCycle: true,
+          isDueToday: pinned, // Still show in today's plan if user manually pinned it
+          lastDate: lastLog.visitDate,
+          badgeText: `Сделано ${formatRuDate(lastLog.visitDate)} (через ${left} дн.)`
+        };
+      } else if (elapsed >= interval) {
+        return {
+          checkedToday: false,
+          doneInCycle: false,
+          isDueToday: true,
+          lastDate: lastLog.visitDate,
+          badgeText: `${task.schedule || ''} • пора (прошло ${elapsed} дн.)`.replace(/^ • /, '')
+        };
+      } else {
+        return {
+          checkedToday: false,
+          doneInCycle: false,
+          isDueToday: pinned,
+          lastDate: lastLog.visitDate,
+          badgeText: task.schedule || ''
+        };
+      }
+    }
+
+    function getTodayPlanTasks(client, targetDate) {
+      return client.tasks
+        .map(task => ({ task, status: getTaskStatus(client.id, task, targetDate) }))
+        .filter(item => item.status.isDueToday);
+    }
+
+    function toggleTaskCompletion(taskId) {
+      const client = getActiveClient();
+      const task = client.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      const targetDate = state.checklistDate;
+      const status = getTaskStatus(client.id, task, targetDate);
+
+      if (status.checkedToday) {
+        const idx = state.completions.findIndex(
+          c => c.clientId === client.id && c.taskId === task.id && c.visitDate === targetDate
+        );
+        if (idx !== -1) state.completions.splice(idx, 1);
+      } else if (status.doneInCycle && !status.checkedToday) {
+        // Uncheck recent periodic completion if clicked in All Tasks view
+        const cycleIdx = state.completions.findIndex(
+          c => c.clientId === client.id && c.taskId === task.id && c.visitDate === status.lastDate
+        );
+        if (cycleIdx !== -1) state.completions.splice(cycleIdx, 1);
+      } else {
+        state.completions.push({
+          id: 'cmp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          clientId: client.id,
+          taskId: task.id,
+          visitDate: targetDate,
+          completedAt: new Date().toISOString()
+        });
+      }
+
+      saveState();
+      renderChecklistScreen();
+    }
+
+    /* =========================================================================
+       5. BULK TOGGLE ENTIRE FLOOR / ZONE WITH ONE CHECKBOX
+    ========================================================================= */
+    function toggleZoneAllTasks(zoneName) {
+      const client = getActiveClient();
+      const targetDate = state.checklistDate;
+
+      // Get the visible tasks in this zone for the current mode
+      let zoneItems = [];
+      if (state.viewMode === 'today') {
+        zoneItems = getTodayPlanTasks(client, targetDate).filter(x => x.task.zone === zoneName);
+      } else {
+        zoneItems = client.tasks
+          .filter(t => t.period === state.activePeriod && t.zone === zoneName)
+          .map(task => ({ task, status: getTaskStatus(client.id, task, targetDate) }));
+      }
+
+      if (zoneItems.length === 0) return;
+
+      const allDone = zoneItems.every(x => x.status.checkedToday || x.status.doneInCycle);
+
+      if (allDone) {
+        // Uncheck all tasks in this zone for targetDate (or active cycle)
+        zoneItems.forEach(({ task, status }) => {
+          if (status.checkedToday) {
+            const idx = state.completions.findIndex(
+              c => c.clientId === client.id && c.taskId === task.id && c.visitDate === targetDate
+            );
+            if (idx !== -1) state.completions.splice(idx, 1);
+          } else if (status.doneInCycle && status.lastDate) {
+            const idx = state.completions.findIndex(
+              c => c.clientId === client.id && c.taskId === task.id && c.visitDate === status.lastDate
+            );
+            if (idx !== -1) state.completions.splice(idx, 1);
+          }
+        });
+      } else {
+        // Check all remaining unchecked tasks in this zone for targetDate
+        zoneItems.forEach(({ task, status }) => {
+          if (!status.checkedToday && !status.doneInCycle) {
+            state.completions.push({
+              id: 'cmp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+              clientId: client.id,
+              taskId: task.id,
+              visitDate: targetDate,
+              completedAt: new Date().toISOString()
+            });
+          }
+        });
+      }
+
+      saveState();
+      renderChecklistScreen();
+    }
+
+    /* =========================================================================
+       6. RENDER CHECKLIST SCREEN
+    ========================================================================= */
+    function renderChecklistScreen() {
+      const client = getActiveClient();
+      document.getElementById('header-client-name').textContent = client.name;
+      const wdNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+      const wdStr = (client.weekdays && client.weekdays.length)
+        ? client.weekdays.map(d => wdNames[d]).join(', ')
+        : 'Без графика';
+      document.getElementById('header-client-sub').textContent = `${wdStr} • ${client.baseRate.toLocaleString('ru-RU')} ₽`;
+      document.getElementById('header-client-dot').style.background = client.color || '#007AFF';
+
+      const dateInput = document.getElementById('checklist-date-picker');
+      dateInput.value = state.checklistDate;
+      const todayStr = toISODate(new Date());
+      document.getElementById('visit-context-status').textContent =
+        state.checklistDate === todayStr ? `Сегодня, ${formatFullRuDate(state.checklistDate)}` : formatFullRuDate(state.checklistDate);
+
+      document.getElementById('btn-edit-mode').classList.toggle('active', state.editMode);
+
+      // Mode buttons
+      const todayItems = getTodayPlanTasks(client, state.checklistDate);
+      const todayDoneCount = todayItems.filter(x => x.status.checkedToday).length;
+      document.getElementById('today-plan-badge').textContent = `${todayDoneCount}/${todayItems.length}`;
+      document.getElementById('mode-btn-today').classList.toggle('active', state.viewMode === 'today');
+      document.getElementById('mode-btn-all').classList.toggle('active', state.viewMode === 'all');
+
+      // Period tabs visibility
+      const tabsEl = document.getElementById('period-tabs');
+      if (state.viewMode === 'all') {
+        tabsEl.style.display = 'flex';
+        tabsEl.innerHTML = PERIODS.map(p => {
+          const active = p.id === state.activePeriod ? 'active' : '';
+          return `<button class="period-pill ${active}" onclick="selectPeriod('${p.id}')">${p.label}</button>`;
+        }).join('');
+      } else {
+        tabsEl.style.display = 'none';
+      }
+
+      // Compute items for current view
+      let currentItems = [];
+      if (state.viewMode === 'today') {
+        currentItems = todayItems;
+      } else {
+        currentItems = client.tasks
+          .filter(t => t.period === state.activePeriod)
+          .map(task => ({ task, status: getTaskStatus(client.id, task, state.checklistDate) }));
+      }
+
+      const totalCount = currentItems.length;
+      const doneCount = currentItems.filter(x => x.status.checkedToday || x.status.doneInCycle).length;
+      const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+
+      document.getElementById('period-summary-title').textContent =
+        state.viewMode === 'today' ? 'Задачи на этот визит' : PERIODS.find(p => p.id === state.activePeriod).label;
+      document.getElementById('period-summary-stats').textContent = `${doneCount} из ${totalCount} (${pct}%)`;
+      document.getElementById('period-progress-fill').style.width = `${pct}%`;
+
+      // Breakdown chips in Today mode
+      const chipsEl = document.getElementById('due-breakdown-chips');
+      if (state.viewMode === 'today') {
+        const dailyLeft = todayItems.filter(x => x.task.period === 'daily' && !x.status.checkedToday).length;
+        const weeklyDue = todayItems.filter(x => x.task.period === 'weekly').length;
+        const monthlyDue = todayItems.filter(x => (x.task.period === 'monthly' || x.task.period === 'quarterly')).length;
+        const extraDue = todayItems.filter(x => (x.task.period === 'ondemand' || x.task.period === 'seasonal')).length;
+
+        let chips = `<span class="due-chip">Ежедневных осталось: ${dailyLeft}</span>`;
+        if (weeklyDue > 0) chips += `<span class="due-chip blue">Еженедельных: ${weeklyDue}</span>`;
+        if (monthlyDue > 0) chips += `<span class="due-chip blue">Ежемесячных/кв.: ${monthlyDue}</span>`;
+        if (extraDue > 0) chips += `<span class="due-chip orange">Доп. на сегодня: ${extraDue}</span>`;
+        chipsEl.innerHTML = chips;
+        chipsEl.style.display = 'flex';
+      } else {
+        chipsEl.style.display = 'none';
+      }
+
+      document.querySelectorAll('.seg-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === state.taskFilter);
+      });
+
+      // Group into zones
+      const zonesMap = new Map();
+      const allByZone = new Map();
+
+      currentItems.forEach(item => {
+        const z = item.task.zone;
+        if (!allByZone.has(z)) allByZone.set(z, []);
+        allByZone.get(z).push(item);
+
+        const isDone = item.status.checkedToday || item.status.doneInCycle;
+        if (state.taskFilter === 'todo' && isDone) return;
+        if (state.taskFilter === 'done' && !isDone) return;
+
+        if (!zonesMap.has(z)) zonesMap.set(z, []);
+        zonesMap.get(z).push(item);
+      });
+
+      const zonesContainer = document.getElementById('zones-container');
+      if (zonesMap.size === 0) {
+        zonesContainer.innerHTML = `<div class="summary-card empty-state">Нет задач по выбранному фильтру.</div>`;
+      } else {
+        let html = '';
+        zonesMap.forEach((visibleItems, zoneName) => {
+          const zoneKey = `${client.id}_${state.viewMode}_${state.activePeriod}_${zoneName}`;
+          const isCollapsed = !!state.collapsedZones[zoneKey];
+          const fullZoneItems = allByZone.get(zoneName) || [];
+          const zoneDone = fullZoneItems.filter(x => x.status.checkedToday || x.status.doneInCycle).length;
+          const zoneTotal = fullZoneItems.length;
+          const allZoneDone = zoneDone === zoneTotal && zoneTotal > 0;
+          const partialDone = zoneDone > 0 && !allZoneDone;
+
+          const selectAllClass = allZoneDone ? 'all-done' : (partialDone ? 'partial' : '');
+          const selectAllSymbol = allZoneDone ? '✓' : (partialDone ? '–' : '');
+
+          html += `
+            <div class="zone-group ${isCollapsed ? 'collapsed' : ''}">
+              <div class="zone-header">
+                <button type="button" class="zone-select-all-btn ${selectAllClass}"
+                        onclick="toggleZoneAllTasks('${escapeAttr(zoneName)}')"
+                        title="Отметить весь этаж">${selectAllSymbol}</button>
+                <div class="zone-title-area" onclick="toggleZoneCollapse('${escapeAttr(zoneKey)}')">
+                  <div class="zone-title-left">
+                    <span class="zone-chevron">▼</span>
+                    <span class="zone-name">${escapeHtml(zoneName)}</span>
+                  </div>
+                  <span class="zone-badge ${allZoneDone ? 'done' : ''}">${zoneDone}/${zoneTotal}</span>
+                </div>
+              </div>
+              <div class="zone-tasks">
+                ${visibleItems.map(({ task, status }) => renderTaskRow(task, status)).join('')}
+              </div>
+            </div>
+          `;
+        });
+        zonesContainer.innerHTML = html;
+      }
+
+      // Update Finish Workday button state
+      const existingVisit = state.visits.find(v => v.clientId === client.id && v.date === state.checklistDate && v.status === 'done');
+      const finishBtn = document.getElementById('btn-finish-workday');
+      if (existingVisit) {
+        const totalPaid = (Number(existingVisit.baseAmount) || 0) + (Number(existingVisit.extraAmount) || 0);
+        finishBtn.className = 'finish-day-btn completed-visit';
+        finishBtn.innerHTML = `✓ Рабочий день закрыт (${totalPaid.toLocaleString('ru-RU')} ₽)`;
+      } else {
+        finishBtn.className = 'finish-day-btn';
+        finishBtn.innerHTML = `✓ Завершить рабочий день`;
+      }
+    }
+
+    function renderTaskRow(task, status) {
+      const isChecked = status.checkedToday;
+      const isCycleDone = !isChecked && status.doneInCycle;
+      const rowClass = isChecked ? 'completed' : (isCycleDone ? 'cycle-done' : '');
+      const checkIcon = (isChecked || isCycleDone) ? '✓' : '';
+
+      let periodTag = '';
+      if (task.period === 'weekly') {
+        periodTag = `<span class="meta-tag weekly">${escapeHtml(status.badgeText || task.schedule || 'Еженедельно')}</span>`;
+      } else if (task.period === 'monthly' || task.period === 'quarterly') {
+        periodTag = `<span class="meta-tag monthly">${escapeHtml(status.badgeText || task.schedule || 'Ежемесячно')}</span>`;
+      } else if (task.period === 'ondemand' || task.period === 'seasonal') {
+        periodTag = `<span class="meta-tag ondemand">${escapeHtml(status.badgeText || task.schedule || 'По запросу')}</span>`;
+      }
+
+      const noteBlock = task.note
+        ? `<div class="task-note-preview">📝 ${escapeHtml(task.note)}</div>`
+        : '';
+
+      const client = getActiveClient();
+      const pinned = isTaskPinnedForVisit(client.id, task.id, state.checklistDate);
+
+      let rightControls = '';
+      if (state.editMode) {
+        rightControls = `
+          <button class="mini-action-btn" onclick="openEditTaskModal('${task.id}')" title="Изменить">✎</button>
+          <button class="mini-action-btn delete" onclick="deleteTask('${task.id}')" title="Удалить">🗑</button>
+        `;
+      } else if (state.viewMode === 'all' && task.period !== 'daily') {
+        rightControls = `
+          <button class="mini-action-btn add-today" onclick="togglePinTaskForVisit('${task.id}')" title="Добавить в план на сегодня">
+            ${pinned ? '✓ В плане' : '+ На сегодня'}
+          </button>
+          <button class="mini-action-btn ${task.note ? 'has-note' : ''}" onclick="openNoteModal('${task.id}')">💬</button>
+        `;
+      } else {
+        rightControls = `
+          <button class="mini-action-btn ${task.note ? 'has-note' : ''}" onclick="openNoteModal('${task.id}')" title="Заметка и история">💬</button>
+        `;
+      }
+
+      return `
+        <div class="task-row ${rowClass}">
+          <div class="task-check" onclick="toggleTaskCompletion('${task.id}')">${checkIcon}</div>
+          <div class="task-body" onclick="${state.editMode ? `openEditTaskModal('${task.id}')` : `toggleTaskCompletion('${task.id}')`}">
+            <div class="task-text">${escapeHtml(task.text)}</div>
+            ${periodTag ? `<div class="task-meta">${periodTag}</div>` : ''}
+            ${noteBlock}
+          </div>
+          <div class="task-actions">
+            ${rightControls}
+          </div>
+        </div>
+      `;
+    }
+
+    function setChecklistViewMode(mode) {
+      state.viewMode = mode;
+      saveState();
+      renderChecklistScreen();
+    }
+
+    function selectPeriod(periodId) {
+      state.activePeriod = periodId;
+      saveState();
+      renderChecklistScreen();
+    }
+
+    function setTaskFilter(filter) {
+      state.taskFilter = filter;
+      saveState();
+      renderChecklistScreen();
+    }
+
+    function toggleZoneCollapse(zoneKey) {
+      state.collapsedZones[zoneKey] = !state.collapsedZones[zoneKey];
+      saveState();
+      renderChecklistScreen();
+    }
+
+    function toggleEditMode() {
+      state.editMode = !state.editMode;
+      saveState();
+      renderChecklistScreen();
+    }
+
+    function onChecklistDateChange(newDate) {
+      if (!newDate) return;
+      state.checklistDate = newDate;
+      saveState();
+      renderChecklistScreen();
+    }
+
+    /* =========================================================================
+       7. FINISH WORKDAY FLOW (CLOSE SHIFT + PAYMENT + CALENDAR SYNC)
+    ========================================================================= */
+    let finishDayPaidState = true;
+
+    function openFinishWorkdayModal() {
+      const client = getActiveClient();
+      const targetDate = state.checklistDate;
+      const planItems = getTodayPlanTasks(client, targetDate);
+
+      const dailyTotal = planItems.filter(x => x.task.period === 'daily').length;
+      const dailyDone = planItems.filter(x => x.task.period === 'daily' && x.status.checkedToday).length;
+      const periodicDone = planItems.filter(x => x.task.period !== 'daily' && x.status.checkedToday).length;
+      const dailyLeft = dailyTotal - dailyDone;
+
+      let summaryHtml = `
+        <div style="font-size:15px; font-weight:600; margin-bottom:6px;">${escapeHtml(client.name)} • ${formatFullRuDate(targetDate)}</div>
+        <div style="font-size:13px; color:var(--text-secondary); line-height:1.5;">
+          • Ежедневные задачи: <strong>${dailyDone} из ${dailyTotal}</strong><br/>
+          • Периодические / доп. задачи за сегодня: <strong>${periodicDone}</strong>
+        </div>
+      `;
+
+      if (dailyLeft > 0) {
+        summaryHtml += `
+          <div style="margin-top:8px; padding:8px 10px; border-radius:8px; background:rgba(255, 149, 0, 0.14); color:#C93400; font-size:12px; font-weight:600;">
+            Внимание: осталось ${dailyLeft} неотмеченных ежедневных задач. Вы всё равно можете закрыть день.
+          </div>
+        `;
+      }
+
+      document.getElementById('finish-summary-box').innerHTML = summaryHtml;
+
+      const existing = state.visits.find(v => v.clientId === client.id && v.date === targetDate);
+      document.getElementById('fd-base-amount').value = existing ? existing.baseAmount : (client.baseRate || 0);
+      document.getElementById('fd-extra-amount').value = existing ? (existing.extraAmount || 0) : 0;
+      document.getElementById('fd-note').value = existing ? (existing.note || '') : '';
+      selectFinishPaid(existing ? !!existing.paid : true);
+
+      openModal('modal-finish-day');
+    }
+
+    function selectFinishPaid(isPaid) {
+      finishDayPaidState = isPaid;
+      document.getElementById('fd-btn-paid').className = 'pay-choice-btn' + (isPaid ? ' selected-paid' : '');
+      document.getElementById('fd-btn-unpaid').className = 'pay-choice-btn' + (!isPaid ? ' selected-unpaid' : '');
+    }
+
+    function confirmFinishWorkday() {
+      const client = getActiveClient();
+      const targetDate = state.checklistDate;
+      const baseAmount = Number(document.getElementById('fd-base-amount').value) || 0;
+      const extraAmount = Number(document.getElementById('fd-extra-amount').value) || 0;
+      const note = document.getElementById('fd-note').value.trim();
+
+      let visit = state.visits.find(v => v.clientId === client.id && v.date === targetDate);
+      if (!visit) {
+        visit = {
+          id: 'vis_' + Date.now(),
+          clientId: client.id,
+          date: targetDate,
+          status: 'done',
+          paid: finishDayPaidState,
+          baseAmount,
+          extraAmount,
+          note,
+          fromSchedule: true
+        };
+        state.visits.push(visit);
+      } else {
+        visit.status = 'done';
+        visit.paid = finishDayPaidState;
+        visit.baseAmount = baseAmount;
+        visit.extraAmount = extraAmount;
+        visit.note = note;
+      }
+
+      saveState();
+      closeModal('modal-finish-day');
+      renderChecklistScreen();
+      renderCalendarScreen();
+      renderFinanceScreen();
+    }
+
+    /* =========================================================================
+       8. CALENDAR & SCHEDULE ENGINE
+    ========================================================================= */
+    function getVisitsForDate(isoDate) {
+      const dateObj = parseISODate(isoDate);
+      const wd = dateObj.getDay();
+      const explicitVisits = state.visits.filter(v => v.date === isoDate);
+      const result = [];
+
+      explicitVisits.forEach(v => {
+        if (v.status !== 'cancelled') {
+          const client = state.clients.find(c => c.id === v.clientId);
+          if (client) {
+            result.push({ ...v, clientName: client.name, clientColor: client.color || '#007AFF', isVirtual: false });
+          }
+        }
+      });
+
+      state.clients.forEach(client => {
+        if (Array.isArray(client.weekdays) && client.weekdays.includes(wd)) {
+          const hasExplicit = explicitVisits.some(v => v.clientId === client.id);
+          if (!hasExplicit) {
+            result.push({
+              id: `virtual_${client.id}_${isoDate}`,
+              clientId: client.id,
+              clientName: client.name,
+              clientColor: client.color || '#007AFF',
+              date: isoDate,
+              status: 'planned',
+              paid: false,
+              baseAmount: Number(client.baseRate) || 0,
+              extraAmount: 0,
+              note: client.duration || '',
+              fromSchedule: true,
+              isVirtual: true
+            });
+          }
+        }
+      });
+
+      return result;
+    }
+
+    function materializeVisitIfVirtual(visitObj) {
+      if (!visitObj.isVirtual) {
+        return state.visits.find(v => v.id === visitObj.id);
+      }
+      let existing = state.visits.find(v => v.clientId === visitObj.clientId && v.date === visitObj.date);
+      if (existing) return existing;
+
+      const client = state.clients.find(c => c.id === visitObj.clientId);
+      const realVisit = {
+        id: 'vis_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        clientId: visitObj.clientId,
+        date: visitObj.date,
+        status: 'planned',
+        paid: false,
+        baseAmount: client ? (Number(client.baseRate) || 0) : visitObj.baseAmount,
+        extraAmount: 0,
+        note: client ? (client.duration || '') : '',
+        fromSchedule: true
+      };
+      state.visits.push(realVisit);
+      return realVisit;
+    }
+
+    function toggleVisitDone(visitId, clientId, dateStr, isVirtual) {
+      const visit = materializeVisitIfVirtual({ id: visitId, clientId, date: dateStr, isVirtual });
+      if (!visit) return;
+      visit.status = visit.status === 'done' ? 'planned' : 'done';
+      saveState();
+      renderCalendarScreen();
+      renderFinanceScreen();
+    }
+
+    function toggleVisitPaid(visitId, clientId, dateStr, isVirtual) {
+      const visit = materializeVisitIfVirtual({ id: visitId, clientId, date: dateStr, isVirtual });
+      if (!visit) return;
+      visit.paid = !visit.paid;
+      if (visit.paid && visit.status === 'planned') visit.status = 'done';
+      saveState();
+      renderCalendarScreen();
+      renderFinanceScreen();
+    }
+
+    function openVisitChecklist(clientId, dateStr) {
+      state.activeClientId = clientId;
+      state.checklistDate = dateStr;
+      state.viewMode = 'today';
+      saveState();
+      switchScreen('checklist');
+    }
+
+    function renderCalendarScreen() {
+      const year = state.calYear;
+      const month = state.calMonth;
+      const monthDate = new Date(year, month, 1);
+      document.getElementById('cal-month-label').textContent = monthDate.toLocaleDateString('ru-RU', {
+        month: 'long',
+        year: 'numeric'
+      });
+
+      const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+      let html = weekdays.map(w => `<div class="cal-weekday">${w}</div>`).join('');
+
+      const firstDayIndex = (monthDate.getDay() + 6) % 7;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevMonthDays = new Date(year, month, 0).getDate();
+      const todayStr = toISODate(new Date());
+
+      for (let i = 0; i < firstDayIndex; i++) {
+        const dNum = prevMonthDays - firstDayIndex + i + 1;
+        html += `<button class="cal-day other-month" disabled>${dNum}</button>`;
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const iso = toISODate(new Date(year, month, day));
+        const visits = getVisitsForDate(iso);
+        const isToday = iso === todayStr ? 'today' : '';
+        const isSelected = iso === state.selectedCalDate ? 'selected' : '';
+        const dots = visits.slice(0, 3).map(v => {
+          const dotColor = v.status === 'done' ? '#34C759' : v.clientColor;
+          return `<span class="cal-dot" style="background:${dotColor}"></span>`;
+        }).join('');
+
+        html += `
+          <button class="cal-day ${isToday} ${isSelected}" onclick="selectCalDay('${iso}')">
+            <span>${day}</span>
+            <div class="cal-dots">${dots}</div>
+          </button>
+        `;
+      }
+
+      document.getElementById('cal-grid').innerHTML = html;
+
+      document.getElementById('selected-day-title').textContent = `Визиты: ${formatFullRuDate(state.selectedCalDate)}`;
+      const dayVisits = getVisitsForDate(state.selectedCalDate);
+      const listEl = document.getElementById('day-visits-list');
+
+      if (dayVisits.length === 0) {
+        listEl.innerHTML = `<div class="summary-card empty-state">На эту дату визитов не запланировано.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = dayVisits.map(v => {
+        const totalSum = (Number(v.baseAmount) || 0) + (Number(v.extraAmount) || 0);
+        return `
+          <div class="visit-card">
+            <div class="visit-card-top">
+              <div>
+                <div class="visit-client-name">${escapeHtml(v.clientName)}</div>
+                <div class="visit-sub">${v.note ? escapeHtml(v.note) : (v.fromSchedule ? 'По расписанию' : 'Разовый выход')}</div>
+              </div>
+              <div class="visit-amount">${totalSum.toLocaleString('ru-RU')} ₽</div>
+            </div>
+            <div class="status-badges">
+              <span class="status-pill ${v.status === 'done' ? 'done' : 'planned'}">
+                ${v.status === 'done' ? '✓ Выполнено' : '⏳ Запланировано'}
+              </span>
+              <span class="status-pill ${v.paid ? 'paid' : 'unpaid'}">
+                ${v.paid ? '₽ Оплачено' : 'Не оплачено'}
+              </span>
+              ${Number(v.extraAmount) > 0 ? `<span class="status-pill planned">+${Number(v.extraAmount).toLocaleString('ru-RU')} ₽ доп.</span>` : ''}
+            </div>
+            <div class="visit-btn-row">
+              <button class="visit-small-btn accent" onclick="openVisitChecklist('${v.clientId}', '${v.date}')">
+                ☑ Открыть уборку
+              </button>
+              <button class="visit-small-btn" onclick="toggleVisitPaid('${v.id}', '${v.clientId}', '${v.date}', ${v.isVirtual})">
+                ${v.paid ? 'Снять оплату' : '₽ Оплачено'}
+              </button>
+              <button class="visit-small-btn" onclick="toggleVisitDone('${v.id}', '${v.clientId}', '${v.date}', ${v.isVirtual})">
+                ${v.status === 'done' ? 'Вернуть в план' : '✓ Сделано'}
+              </button>
+              <button class="visit-small-btn" onclick="openEditVisitModal('${v.id}', '${v.clientId}', '${v.date}', ${v.isVirtual})">
+                ✎ Доплата / дата
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function changeCalMonth(delta) {
+      const d = new Date(state.calYear, state.calMonth + delta, 1);
+      state.calYear = d.getFullYear();
+      state.calMonth = d.getMonth();
+      saveState();
+      renderCalendarScreen();
+    }
+
+    function selectCalDay(iso) {
+      state.selectedCalDate = iso;
+      saveState();
+      renderCalendarScreen();
+    }
+
+    /* =========================================================================
+       9. FINANCE SCREEN
+    ========================================================================= */
+    function renderFinanceScreen() {
+      const year = state.finYear;
+      const month = state.finMonth;
+      const monthDate = new Date(year, month, 1);
+      document.getElementById('fin-month-label').textContent = monthDate.toLocaleDateString('ru-RU', {
+        month: 'long',
+        year: 'numeric'
+      });
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      let allMonthVisits = [];
+      for (let day = 1; day <= daysInMonth; day++) {
+        const iso = toISODate(new Date(year, month, day));
+        allMonthVisits = allMonthVisits.concat(getVisitsForDate(iso));
+      }
+
+      let paidSum = 0;
+      let unpaidDoneSum = 0;
+      let plannedSum = 0;
+      const byClient = {};
+
+      state.clients.forEach(c => {
+        byClient[c.id] = { name: c.name, count: 0, doneCount: 0, paid: 0, total: 0 };
+      });
+
+      allMonthVisits.forEach(v => {
+        const amount = (Number(v.baseAmount) || 0) + (Number(v.extraAmount) || 0);
+        if (v.paid) paidSum += amount;
+        else if (v.status === 'done') unpaidDoneSum += amount;
+        else plannedSum += amount;
+
+        if (!byClient[v.clientId]) {
+          byClient[v.clientId] = { name: v.clientName, count: 0, doneCount: 0, paid: 0, total: 0 };
+        }
+        byClient[v.clientId].count += 1;
+        if (v.status === 'done') byClient[v.clientId].doneCount += 1;
+        if (v.paid) byClient[v.clientId].paid += amount;
+        byClient[v.clientId].total += amount;
+      });
+
+      const totalExpected = paidSum + unpaidDoneSum + plannedSum;
+
+      document.getElementById('fin-summary-grid').innerHTML = `
+        <div class="fin-box">
+          <div class="fin-label">Получено (оплачено)</div>
+          <div class="fin-value green">${paidSum.toLocaleString('ru-RU')} ₽</div>
+        </div>
+        <div class="fin-box">
+          <div class="fin-label">Ожидает оплаты</div>
+          <div class="fin-value orange">${unpaidDoneSum.toLocaleString('ru-RU')} ₽</div>
+        </div>
+        <div class="fin-box">
+          <div class="fin-label">План до конца мес.</div>
+          <div class="fin-value blue">${plannedSum.toLocaleString('ru-RU')} ₽</div>
+        </div>
+        <div class="fin-box">
+          <div class="fin-label">Всего за месяц</div>
+          <div class="fin-value">${totalExpected.toLocaleString('ru-RU')} ₽</div>
+        </div>
+      `;
+
+      const clientCards = Object.values(byClient).map(item => `
+        <div class="visit-card" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="visit-client-name">${escapeHtml(item.name)}</div>
+            <div class="visit-sub">Выполнено визитов: ${item.doneCount} из ${item.count}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="visit-amount" style="color:#248A3D;">${item.paid.toLocaleString('ru-RU')} ₽</div>
+            <div class="visit-sub">План: ${item.total.toLocaleString('ru-RU')} ₽</div>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('fin-by-client-list').innerHTML = clientCards || `<div class="summary-card empty-state">Нет данных</div>`;
+    }
+
+    function changeFinMonth(delta) {
+      const d = new Date(state.finYear, state.finMonth + delta, 1);
+      state.finYear = d.getFullYear();
+      state.finMonth = d.getMonth();
+      saveState();
+      renderFinanceScreen();
+    }
+
+    /* =========================================================================
+       10. MODALS: CLIENTS, TASKS, NOTES, VISITS & BACKUP
+    ========================================================================= */
+    function openClientsModal() {
+      const container = document.getElementById('clients-list-container');
+      const wdNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+      container.innerHTML = state.clients.map(c => {
+        const isCurrent = c.id === state.activeClientId;
+        const wdText = (c.weekdays && c.weekdays.length) ? c.weekdays.map(d => wdNames[d]).join(', ') : 'Без расписания';
+        return `
+          <div class="visit-card" style="display:flex; align-items:center; justify-content:space-between; gap:10px; border: ${isCurrent ? '1.5px solid var(--accent-blue)' : 'none'};">
+            <div style="flex:1; cursor:pointer;" onclick="selectClient('${c.id}')">
+              <div class="visit-client-name">${escapeHtml(c.name)} ${isCurrent ? '✓' : ''}</div>
+              <div class="visit-sub">${wdText} • ${Number(c.baseRate).toLocaleString('ru-RU')} ₽</div>
+              ${c.note ? `<div class="visit-sub">${escapeHtml(c.note)}</div>` : ''}
+            </div>
+            <button class="icon-btn" onclick="openClientFormModal('${c.id}')">✎</button>
+          </div>
+        `;
+      }).join('');
+      openModal('modal-clients');
+    }
+
+    function selectClient(clientId) {
+      state.activeClientId = clientId;
+      saveState();
+      closeModal('modal-clients');
+      renderChecklistScreen();
+    }
+
+    function openClientFormModal(clientId = null) {
+      closeModal('modal-clients');
+      const isEdit = !!clientId;
+      document.getElementById('client-form-title').textContent = isEdit ? 'Редактировать объект' : 'Новый объект';
+      document.getElementById('edit-client-id').value = clientId || '';
+      document.getElementById('cf-delete-btn').style.display = (isEdit && state.clients.length > 1) ? 'flex' : 'none';
+
+      const client = isEdit ? state.clients.find(c => c.id === clientId) : null;
+      document.getElementById('cf-name').value = client ? client.name : '';
+      document.getElementById('cf-note').value = client ? (client.note || '') : '';
+      document.getElementById('cf-duration').value = client ? (client.duration || '') : 'целый день';
+      document.getElementById('cf-rate').value = client ? client.baseRate : 8000;
+
+      const activeWds = client && Array.isArray(client.weekdays) ? client.weekdays : [];
+      document.querySelectorAll('#cf-weekdays .wd-btn').forEach(btn => {
+        const wd = Number(btn.dataset.wd);
+        btn.classList.toggle('active', activeWds.includes(wd));
+      });
+
+      openModal('modal-client-form');
+    }
+
+    function toggleWdBtn(btn) { btn.classList.toggle('active'); }
+
+    function saveClientForm() {
+      const id = document.getElementById('edit-client-id').value;
+      const name = document.getElementById('cf-name').value.trim();
+      if (!name) { alert('Укажите название объекта'); return; }
+      const note = document.getElementById('cf-note').value.trim();
+      const duration = document.getElementById('cf-duration').value.trim();
+      const baseRate = Number(document.getElementById('cf-rate').value) || 0;
+      const weekdays = Array.from(document.querySelectorAll('#cf-weekdays .wd-btn.active')).map(b => Number(b.dataset.wd));
+
+      if (id) {
+        const client = state.clients.find(c => c.id === id);
+        if (client) {
+          client.name = name;
+          client.note = note;
+          client.duration = duration;
+          client.baseRate = baseRate;
+          client.weekdays = weekdays;
+        }
+      } else {
+        const colors = ['#007AFF', '#34C759', '#AF52DE', '#FF9500', '#FF2D55'];
+        const newClient = {
+          id: 'client_' + Date.now(),
+          name,
+          note,
+          weekdays,
+          duration,
+          baseRate,
+          color: colors[state.clients.length % colors.length],
+          tasks: []
+        };
+        state.clients.push(newClient);
+        state.activeClientId = newClient.id;
+      }
+
+      saveState();
+      closeModal('modal-client-form');
+      renderChecklistScreen();
+      renderCalendarScreen();
+      renderFinanceScreen();
+    }
+
+    function deleteClient() {
+      const id = document.getElementById('edit-client-id').value;
+      if (!id || state.clients.length <= 1) return;
+      if (!confirm('Удалить этот объект, его задачи, визиты и историю?')) return;
+
+      state.clients = state.clients.filter(c => c.id !== id);
+      state.visits = state.visits.filter(v => v.clientId !== id);
+      state.completions = state.completions.filter(c => c.clientId !== id);
+      if (state.activeClientId === id) state.activeClientId = state.clients[0].id;
+
+      saveState();
+      closeModal('modal-client-form');
+      renderChecklistScreen();
+      renderCalendarScreen();
+      renderFinanceScreen();
+    }
+
+    function populateZonesDatalist() {
+      const client = getActiveClient();
+      const zones = Array.from(new Set(client.tasks.map(t => t.zone)));
+      document.getElementById('zones-datalist').innerHTML = zones.map(z => `<option value="${escapeAttr(z)}">`).join('');
+    }
+
+    function onTaskPeriodSelectChange(val) {
+      const map = { daily: '0', weekly: '7', monthly: '30', quarterly: '90', seasonal: '0', ondemand: '0' };
+      document.getElementById('tf-interval-days').value = map[val] || '0';
+    }
+
+    function openAddTaskModal() {
+      populateZonesDatalist();
+      document.getElementById('task-form-title').textContent = 'Новая задача';
+      document.getElementById('edit-task-id').value = '';
+      document.getElementById('tf-text').value = '';
+      const defPeriod = state.viewMode === 'all' ? state.activePeriod : 'daily';
+      document.getElementById('tf-period').value = defPeriod;
+      onTaskPeriodSelectChange(defPeriod);
+      document.getElementById('tf-zone').value = '';
+      document.getElementById('tf-schedule').value = '';
+      openModal('modal-task-form');
+    }
+
+    function openEditTaskModal(taskId) {
+      const client = getActiveClient();
+      const task = client.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      populateZonesDatalist();
+      document.getElementById('task-form-title').textContent = 'Изменить задачу';
+      document.getElementById('edit-task-id').value = task.id;
+      document.getElementById('tf-text').value = task.text;
+      document.getElementById('tf-period').value = task.period;
+      document.getElementById('tf-interval-days').value = String(task.intervalDays || 0);
+      document.getElementById('tf-zone').value = task.zone;
+      document.getElementById('tf-schedule').value = task.schedule || '';
+      openModal('modal-task-form');
+    }
+
+    function saveTaskForm() {
+      const client = getActiveClient();
+      const id = document.getElementById('edit-task-id').value;
+      const text = document.getElementById('tf-text').value.trim();
+      const period = document.getElementById('tf-period').value;
+      const intervalDays = Number(document.getElementById('tf-interval-days').value) || 0;
+      const zone = document.getElementById('tf-zone').value.trim() || 'Общее по дому';
+      const schedule = document.getElementById('tf-schedule').value.trim();
+
+      if (!text) { alert('Введите текст задачи'); return; }
+
+      if (id) {
+        const task = client.tasks.find(t => t.id === id);
+        if (task) {
+          task.text = text;
+          task.period = period;
+          task.intervalDays = intervalDays;
+          task.zone = zone;
+          task.schedule = schedule;
+        }
+      } else {
+        const newTask = {
+          id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+          zone,
+          period,
+          intervalDays,
+          text,
+          schedule,
+          note: ''
+        };
+        client.tasks.push(newTask);
+        // If added as ondemand/seasonal while in today mode, pin it to today automatically
+        if ((period === 'ondemand' || period === 'seasonal') && state.viewMode === 'today') {
+          const key = getPinnedKey(client.id, state.checklistDate);
+          if (!state.pinnedForVisit[key]) state.pinnedForVisit[key] = [];
+          state.pinnedForVisit[key].push(newTask.id);
+        }
+      }
+
+      saveState();
+      closeModal('modal-task-form');
+      renderChecklistScreen();
+    }
+
+    function deleteTask(taskId) {
+      const client = getActiveClient();
+      if (!confirm('Удалить эту задачу?')) return;
+      client.tasks = client.tasks.filter(t => t.id !== taskId);
+      state.completions = state.completions.filter(c => !(c.clientId === client.id && c.taskId === taskId));
+      saveState();
+      renderChecklistScreen();
+    }
+
+    let currentNoteTaskId = null;
+
+    function openNoteModal(taskId) {
+      const client = getActiveClient();
+      const task = client.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      currentNoteTaskId = taskId;
+      document.getElementById('note-task-title').textContent = task.text;
+      document.getElementById('note-textarea').value = task.note || '';
+
+      const logs = state.completions
+        .filter(c => c.clientId === client.id && c.taskId === task.id)
+        .sort((a, b) => b.visitDate.localeCompare(a.visitDate));
+
+      const historyEl = document.getElementById('task-history-list');
+      if (logs.length === 0) {
+        historyEl.innerHTML = `<div style="font-size:13px; color:var(--text-secondary);">Пока нет отметок о выполнении</div>`;
+      } else {
+        historyEl.innerHTML = logs.map(l => `
+          <div class="history-list-item">
+            <span>Визит: <strong>${formatFullRuDate(l.visitDate)}</strong></span>
+            <button class="mini-action-btn delete" onclick="deleteCompletionLog('${l.id}')" title="Удалить запись">✕</button>
+          </div>
+        `).join('');
+      }
+
+      openModal('modal-task-note');
+    }
+
+    function saveTaskNote() {
+      const client = getActiveClient();
+      const task = client.tasks.find(t => t.id === currentNoteTaskId);
+      if (!task) return;
+      task.note = document.getElementById('note-textarea').value.trim();
+      saveState();
+      closeModal('modal-task-note');
+      renderChecklistScreen();
+    }
+
+    function deleteCompletionLog(logId) {
+      state.completions = state.completions.filter(c => c.id !== logId);
+      saveState();
+      openNoteModal(currentNoteTaskId);
+      renderChecklistScreen();
+    }
+
+    function populateVisitClientsSelect(selectedId) {
+      document.getElementById('vf-client-id').innerHTML = state.clients.map(c =>
+        `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${escapeHtml(c.name)}</option>`
+      ).join('');
+    }
+
+    function openAddVisitModal() {
+      document.getElementById('visit-modal-title').textContent = 'Добавить визит';
+      document.getElementById('vf-visit-id').value = '';
+      document.getElementById('vf-is-virtual').value = 'false';
+      document.getElementById('vf-delete-btn').style.display = 'none';
+
+      const activeClient = getActiveClient();
+      populateVisitClientsSelect(activeClient.id);
+      document.getElementById('vf-date').value = state.selectedCalDate;
+      document.getElementById('vf-base-amount').value = activeClient.baseRate || 0;
+      document.getElementById('vf-extra-amount').value = 0;
+      document.getElementById('vf-note').value = '';
+
+      document.getElementById('vf-client-id').onchange = function () {
+        const c = state.clients.find(x => x.id === this.value);
+        if (c) document.getElementById('vf-base-amount').value = c.baseRate || 0;
+      };
+
+      openModal('modal-visit-form');
+    }
+
+    function openEditVisitModal(visitId, clientId, dateStr, isVirtual) {
+      const visits = getVisitsForDate(dateStr);
+      const visit = visits.find(v => v.id === visitId) || visits.find(v => v.clientId === clientId);
+      if (!visit) return;
+
+      document.getElementById('visit-modal-title').textContent = 'Параметры визита';
+      document.getElementById('vf-visit-id').value = visit.id;
+      document.getElementById('vf-is-virtual').value = String(!!visit.isVirtual);
+      document.getElementById('vf-delete-btn').style.display = 'flex';
+
+      populateVisitClientsSelect(visit.clientId);
+      document.getElementById('vf-date').value = visit.date;
+      document.getElementById('vf-base-amount').value = visit.baseAmount;
+      document.getElementById('vf-extra-amount').value = visit.extraAmount || 0;
+      document.getElementById('vf-note').value = visit.note || '';
+      document.getElementById('vf-client-id').onchange = null;
+
+      openModal('modal-visit-form');
+    }
+
+    function saveVisitForm() {
+      const visitId = document.getElementById('vf-visit-id').value;
+      const isVirtual = document.getElementById('vf-is-virtual').value === 'true';
+      const clientId = document.getElementById('vf-client-id').value;
+      const date = document.getElementById('vf-date').value;
+      const baseAmount = Number(document.getElementById('vf-base-amount').value) || 0;
+      const extraAmount = Number(document.getElementById('vf-extra-amount').value) || 0;
+      const note = document.getElementById('vf-note').value.trim();
+
+      if (!clientId || !date) { alert('Выберите объект и дату'); return; }
+
+      if (!visitId) {
+        state.visits.push({
+          id: 'vis_' + Date.now(),
+          clientId,
+          date,
+          status: 'planned',
+          paid: false,
+          baseAmount,
+          extraAmount,
+          note,
+          fromSchedule: false
+        });
+      } else {
+        const realVisit = materializeVisitIfVirtual({ id: visitId, clientId, date: state.selectedCalDate, isVirtual });
+        if (realVisit) {
+          realVisit.clientId = clientId;
+          realVisit.date = date;
+          realVisit.baseAmount = baseAmount;
+          realVisit.extraAmount = extraAmount;
+          realVisit.note = note;
+        }
+      }
+
+      state.selectedCalDate = date;
+      saveState();
+      closeModal('modal-visit-form');
+      renderCalendarScreen();
+      renderFinanceScreen();
+    }
+
+    function deleteOrCancelVisit() {
+      const visitId = document.getElementById('vf-visit-id').value;
+      const isVirtual = document.getElementById('vf-is-virtual').value === 'true';
+      const clientId = document.getElementById('vf-client-id').value;
+      const date = state.selectedCalDate;
+
+      if (!confirm('Удалить или отменить этот визит?')) return;
+
+      if (isVirtual) {
+        state.visits.push({
+          id: 'vis_cancel_' + Date.now(),
+          clientId,
+          date,
+          status: 'cancelled',
+          paid: false,
+          baseAmount: 0,
+          extraAmount: 0,
+          note: 'Отменён',
+          fromSchedule: true
+        });
+      } else {
+        const idx = state.visits.findIndex(v => v.id === visitId);
+        if (idx !== -1) {
+          if (state.visits[idx].fromSchedule) state.visits[idx].status = 'cancelled';
+          else state.visits.splice(idx, 1);
+        }
+      }
+
+      saveState();
+      closeModal('modal-visit-form');
+      renderCalendarScreen();
+      renderFinanceScreen();
+    }
+
+    function exportBackupJSON() {
+      const payload = { app: 'CleaningApp', exportedAt: new Date().toISOString(), data: state };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cleaning-backup-${toISODate(new Date())}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importBackupJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const importedState = parsed.data ? parsed.data : parsed;
+          if (!importedState.clients || !Array.isArray(importedState.clients) || importedState.clients.length === 0) {
+            throw new Error('Некорректный формат файла');
+          }
+          importedState.completions = Array.isArray(importedState.completions) ? importedState.completions : [];
+          importedState.visits = Array.isArray(importedState.visits) ? importedState.visits : [];
+          importedState.collapsedZones = importedState.collapsedZones || {};
+          importedState.pinnedForVisit = importedState.pinnedForVisit || {};
+          state = importedState;
+          saveState();
+          renderChecklistScreen();
+          renderCalendarScreen();
+          renderFinanceScreen();
+          alert('Резервная копия восстановлена!');
+        } catch (err) {
+          alert('Ошибка: ' + err.message);
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function switchScreen(screenName) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + screenName).classList.add('active');
+      document.querySelectorAll('.tab-item').forEach(t => {
+        t.classList.toggle('active', t.dataset.screen === screenName);
+      });
+      if (screenName === 'checklist') renderChecklistScreen();
+      if (screenName === 'calendar') renderCalendarScreen();
+      if (screenName === 'finance') renderFinanceScreen();
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function closeModalOnBackdrop(e, id) { if (e.target.id === id) closeModal(id); }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function escapeAttr(str) {
+      return String(str).replace(/'/g, "\'").replace(/"/g, '&quot;');
+    }
+
+    renderChecklistScreen();
+  </script>
+</body>
+</html>
