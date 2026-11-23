@@ -6,26 +6,55 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Клининг" />
-  <meta name="theme-color" content="#F2F2F7" />
+  <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
   <title>Клининг — Чек-лист и учёт визитов</title>
   <style>
     :root {
+      color-scheme: light dark;
       --bg-primary: #F2F2F7;
       --bg-card: #FFFFFF;
+      --bg-elevated: #F9F9FB;
+      --bg-control: #E5E5EA;
       --bg-glass: rgba(242, 242, 247, 0.88);
       --text-primary: #000000;
       --text-secondary: #8E8E93;
       --text-tertiary: #AEAEB2;
       --separator: rgba(60, 60, 67, 0.14);
+      --border-check: #C7C7CC;
       --accent-blue: #007AFF;
       --accent-green: #34C759;
+      --accent-green-text: #248A3D;
       --accent-orange: #FF9500;
+      --accent-orange-text: #C93400;
       --accent-red: #FF3B30;
       --accent-purple: #AF52DE;
       --radius-card: 14px;
       --radius-pill: 20px;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #000000;
+        --bg-card: #1C1C1E;
+        --bg-elevated: #2C2C2E;
+        --bg-control: #2C2C2E;
+        --bg-glass: rgba(28, 28, 30, 0.88);
+        --text-primary: #FFFFFF;
+        --text-secondary: #8E8E93;
+        --text-tertiary: #636366;
+        --separator: rgba(84, 84, 88, 0.45);
+        --border-check: #48484A;
+        --accent-blue: #0A84FF;
+        --accent-green: #30D158;
+        --accent-green-text: #32D74B;
+        --accent-orange: #FF9F0A;
+        --accent-orange-text: #FF9F0A;
+        --accent-red: #FF453A;
+        --accent-purple: #BF5AF2;
+      }
     }
 
     * {
@@ -82,7 +111,7 @@
     }
 
     .client-selector-btn:active {
-      background: #E5E5EA;
+      background: var(--bg-control);
     }
 
     .client-dot {
@@ -169,7 +198,7 @@
 
     .visit-date-input {
       border: none;
-      background: #F2F2F7;
+      background: var(--bg-elevated);
       border-radius: 8px;
       padding: 5px 8px;
       font-size: 13px;
@@ -189,7 +218,7 @@
     .mode-segmented {
       display: grid;
       grid-template-columns: 1.3fr 1fr;
-      background: #E5E5EA;
+      background: var(--bg-control);
       padding: 3px;
       border-radius: 11px;
       margin-bottom: 12px;
@@ -213,14 +242,14 @@
     .mode-seg-btn.active {
       background: var(--bg-card);
       color: var(--text-primary);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
     }
 
     .mode-badge {
       font-size: 11px;
       padding: 1px 6px;
       border-radius: 10px;
-      background: rgba(0, 122, 255, 0.12);
+      background: rgba(0, 122, 255, 0.15);
       color: var(--accent-blue);
     }
 
@@ -284,7 +313,7 @@
 
     .progress-track {
       height: 8px;
-      background: #E5E5EA;
+      background: var(--bg-control);
       border-radius: 99px;
       overflow: hidden;
       margin-bottom: 10px;
@@ -309,24 +338,24 @@
       font-weight: 500;
       padding: 3px 9px;
       border-radius: 8px;
-      background: #F2F2F7;
+      background: var(--bg-elevated);
       color: var(--text-secondary);
     }
 
     .due-chip.blue {
-      background: rgba(0, 122, 255, 0.1);
+      background: rgba(0, 122, 255, 0.14);
       color: var(--accent-blue);
     }
 
     .due-chip.orange {
-      background: rgba(255, 149, 0, 0.14);
-      color: #C93400;
+      background: rgba(255, 149, 0, 0.16);
+      color: var(--accent-orange-text);
     }
 
     .segmented-control {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      background: #E5E5EA;
+      background: var(--bg-control);
       padding: 2px;
       border-radius: 9px;
     }
@@ -345,7 +374,38 @@
     .seg-btn.active {
       background: var(--bg-card);
       font-weight: 600;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Edit Zones Toolbar */
+    .edit-zones-banner {
+      background: rgba(0, 122, 255, 0.12);
+      border: 0.5px solid rgba(0, 122, 255, 0.3);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .edit-zones-text {
+      font-size: 13px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .edit-zones-btn {
+      padding: 7px 12px;
+      border-radius: 9px;
+      border: none;
+      background: var(--accent-blue);
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
     }
 
     /* Zone Accordion Groups with Select-All Floor Checkbox */
@@ -369,8 +429,8 @@
       width: 28px;
       height: 28px;
       border-radius: 8px;
-      border: 2px solid #C7C7CC;
-      background: #FFFFFF;
+      border: 2px solid var(--border-check);
+      background: var(--bg-card);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -391,7 +451,7 @@
     .zone-select-all-btn.partial {
       border-color: var(--accent-blue);
       color: var(--accent-blue);
-      background: rgba(0, 122, 255, 0.08);
+      background: rgba(0, 122, 255, 0.12);
     }
 
     .zone-title-area {
@@ -433,15 +493,28 @@
       font-size: 12px;
       font-weight: 600;
       color: var(--text-secondary);
-      background: #F2F2F7;
+      background: var(--bg-elevated);
       padding: 2px 8px;
       border-radius: 10px;
       flex-shrink: 0;
     }
 
     .zone-badge.done {
-      background: rgba(52, 199, 89, 0.15);
-      color: #248A3D;
+      background: rgba(52, 199, 89, 0.18);
+      color: var(--accent-green-text);
+    }
+
+    .zone-edit-btn {
+      height: 28px;
+      padding: 0 9px;
+      border-radius: 8px;
+      border: none;
+      background: rgba(0, 122, 255, 0.14);
+      color: var(--accent-blue);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
     }
 
     .zone-tasks {
@@ -470,7 +543,7 @@
       width: 26px;
       height: 26px;
       border-radius: 50%;
-      border: 2px solid #C7C7CC;
+      border: 2px solid var(--border-check);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -478,7 +551,7 @@
       margin-top: 1px;
       cursor: pointer;
       transition: all 0.15s ease;
-      background: #FFFFFF;
+      background: var(--bg-card);
       font-size: 14px;
       font-weight: 700;
     }
@@ -490,9 +563,9 @@
     }
 
     .task-row.cycle-done .task-check {
-      background: rgba(52, 199, 89, 0.18);
+      background: rgba(52, 199, 89, 0.2);
       border-color: var(--accent-green);
-      color: #248A3D;
+      color: var(--accent-green-text);
     }
 
     .task-body {
@@ -524,35 +597,30 @@
       font-weight: 600;
       padding: 2px 7px;
       border-radius: 6px;
-      background: #F2F2F7;
+      background: var(--bg-elevated);
       color: var(--text-secondary);
     }
 
     .meta-tag.weekly {
-      background: rgba(0, 122, 255, 0.12);
+      background: rgba(0, 122, 255, 0.14);
       color: var(--accent-blue);
     }
 
     .meta-tag.monthly {
-      background: rgba(175, 82, 222, 0.12);
+      background: rgba(175, 82, 222, 0.15);
       color: var(--accent-purple);
     }
 
     .meta-tag.ondemand {
-      background: rgba(255, 149, 0, 0.14);
-      color: #C93400;
-    }
-
-    .meta-tag.history {
-      background: rgba(52, 199, 89, 0.12);
-      color: #248A3D;
+      background: rgba(255, 149, 0, 0.16);
+      color: var(--accent-orange-text);
     }
 
     .task-note-preview {
       margin-top: 6px;
       font-size: 12px;
-      color: #444;
-      background: #F9F9FB;
+      color: var(--text-primary);
+      background: var(--bg-elevated);
       padding: 6px 9px;
       border-radius: 8px;
       border-left: 2.5px solid var(--accent-orange);
@@ -571,7 +639,7 @@
       padding: 0 8px;
       border-radius: 8px;
       border: none;
-      background: #F2F2F7;
+      background: var(--bg-elevated);
       color: var(--text-secondary);
       font-size: 13px;
       font-weight: 600;
@@ -582,17 +650,17 @@
     }
 
     .mini-action-btn.has-note {
-      background: rgba(255, 149, 0, 0.15);
+      background: rgba(255, 149, 0, 0.18);
       color: var(--accent-orange);
     }
 
     .mini-action-btn.add-today {
-      background: rgba(0, 122, 255, 0.12);
+      background: rgba(0, 122, 255, 0.14);
       color: var(--accent-blue);
     }
 
     .mini-action-btn.delete {
-      background: rgba(255, 59, 48, 0.12);
+      background: rgba(255, 59, 48, 0.15);
       color: var(--accent-red);
     }
 
@@ -616,7 +684,7 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 4px 14px rgba(52, 199, 89, 0.28);
+      box-shadow: 0 4px 14px rgba(52, 199, 89, 0.25);
     }
 
     .finish-day-btn:active {
@@ -625,7 +693,7 @@
 
     .finish-day-btn.completed-visit {
       background: var(--bg-card);
-      color: #248A3D;
+      color: var(--accent-green-text);
       border: 1.5px solid var(--accent-green);
       box-shadow: none;
     }
@@ -662,7 +730,7 @@
     }
 
     .ios-btn.danger {
-      background: rgba(255, 59, 48, 0.12);
+      background: rgba(255, 59, 48, 0.15);
       color: var(--accent-red);
     }
 
@@ -788,10 +856,10 @@
       border-radius: 8px;
     }
 
-    .status-pill.planned { background: rgba(0, 122, 255, 0.12); color: var(--accent-blue); }
-    .status-pill.done { background: rgba(52, 199, 89, 0.15); color: #248A3D; }
-    .status-pill.paid { background: rgba(52, 199, 89, 0.15); color: #248A3D; }
-    .status-pill.unpaid { background: rgba(255, 149, 0, 0.15); color: #C93400; }
+    .status-pill.planned { background: rgba(0, 122, 255, 0.14); color: var(--accent-blue); }
+    .status-pill.done { background: rgba(52, 199, 89, 0.18); color: var(--accent-green-text); }
+    .status-pill.paid { background: rgba(52, 199, 89, 0.18); color: var(--accent-green-text); }
+    .status-pill.unpaid { background: rgba(255, 149, 0, 0.18); color: var(--accent-orange-text); }
 
     .visit-btn-row {
       display: grid;
@@ -805,13 +873,13 @@
       border: none;
       font-size: 13px;
       font-weight: 600;
-      background: #F2F2F7;
+      background: var(--bg-elevated);
       color: var(--text-primary);
       cursor: pointer;
     }
 
     .visit-small-btn.accent {
-      background: rgba(0, 122, 255, 0.12);
+      background: rgba(0, 122, 255, 0.14);
       color: var(--accent-blue);
     }
 
@@ -840,9 +908,32 @@
       font-weight: 700;
     }
 
-    .fin-value.green { color: #248A3D; }
-    .fin-value.orange { color: #C93400; }
+    .fin-value.green { color: var(--accent-green-text); }
+    .fin-value.orange { color: var(--accent-orange-text); }
     .fin-value.blue { color: var(--accent-blue); }
+
+    .alltime-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      border: 0.5px solid var(--separator);
+    }
+
+    .alltime-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .alltime-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
 
     /* Bottom Tab Bar */
     .tab-bar {
@@ -888,7 +979,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.5);
       z-index: 100;
       display: none;
       align-items: flex-end;
@@ -920,7 +1011,7 @@
       width: 36px;
       height: 5px;
       border-radius: 99px;
-      background: #C7C7CC;
+      background: var(--border-check);
       margin: 0 auto 12px;
     }
 
@@ -938,7 +1029,7 @@
 
     .sheet-close {
       border: none;
-      background: #E5E5EA;
+      background: var(--bg-control);
       width: 30px;
       height: 30px;
       border-radius: 50%;
@@ -965,7 +1056,7 @@
     .form-input, .form-select, .form-textarea {
       width: 100%;
       border: 0.5px solid var(--separator);
-      background: #F9F9FB;
+      background: var(--bg-elevated);
       border-radius: 9px;
       padding: 10px 12px;
       font-size: 15px;
@@ -988,7 +1079,8 @@
       padding: 9px 0;
       border-radius: 9px;
       border: 0.5px solid var(--separator);
-      background: #F9F9FB;
+      background: var(--bg-elevated);
+      color: var(--text-primary);
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
@@ -1010,7 +1102,7 @@
       padding: 12px 10px;
       border-radius: 10px;
       border: 1.5px solid var(--separator);
-      background: #F9F9FB;
+      background: var(--bg-elevated);
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
@@ -1018,15 +1110,15 @@
     }
 
     .pay-choice-btn.selected-paid {
-      background: rgba(52, 199, 89, 0.14);
+      background: rgba(52, 199, 89, 0.16);
       border-color: var(--accent-green);
-      color: #248A3D;
+      color: var(--accent-green-text);
     }
 
     .pay-choice-btn.selected-unpaid {
-      background: rgba(255, 149, 0, 0.14);
+      background: rgba(255, 149, 0, 0.16);
       border-color: var(--accent-orange);
-      color: #C93400;
+      color: var(--accent-orange-text);
     }
 
     .screen { display: none; }
@@ -1048,6 +1140,17 @@
       font-size: 14px;
     }
     .history-list-item:last-child { border-bottom: none; }
+
+    .zone-manage-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -1064,7 +1167,7 @@
           </div>
           <span style="color: var(--text-secondary); font-size: 12px;">▼</span>
         </button>
-        <button class="icon-btn" id="btn-edit-mode" onclick="toggleEditMode()" title="Редактировать список">✎</button>
+        <button class="icon-btn" id="btn-edit-mode" onclick="toggleEditMode()" title="Редактировать список и зоны">✎</button>
         <button class="icon-btn" onclick="openAddTaskModal()" title="Добавить задачу">+</button>
       </div>
 
@@ -1087,6 +1190,12 @@
         <button class="mode-seg-btn" id="mode-btn-all" onclick="setChecklistViewMode('all')">
           <span>Все задачи</span>
         </button>
+      </div>
+
+      <!-- Edit Zones Banner (visible only in Edit Mode) -->
+      <div class="edit-zones-banner" id="edit-zones-banner" style="display:none;">
+        <span class="edit-zones-text">Режим правки этажей и задач</span>
+        <button class="edit-zones-btn" onclick="openZonesManagerModal()">Этажи / зоны</button>
       </div>
 
       <!-- Period Pills (shown only in "Все задачи" mode) -->
@@ -1151,6 +1260,9 @@
       <div class="large-title">Финансы</div>
     </div>
     <div class="container">
+      <!-- All-time cumulative block -->
+      <div class="alltime-card" id="fin-alltime-card"></div>
+
       <div class="summary-card">
         <div class="cal-controls" style="margin-bottom:0;">
           <button class="icon-btn" onclick="changeFinMonth(-1)">‹</button>
@@ -1193,6 +1305,27 @@
       <span>Финансы</span>
     </button>
   </nav>
+
+  <!-- ==================== MODAL: ZONES / FLOORS MANAGER ==================== -->
+  <div class="modal-backdrop" id="modal-zones" onclick="closeModalOnBackdrop(event, 'modal-zones')">
+    <div class="sheet">
+      <div class="grabber"></div>
+      <div class="sheet-header">
+        <div class="sheet-title">Этажи и комнаты</div>
+        <button class="sheet-close" onclick="closeModal('modal-zones')">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Добавить новый этаж или зону</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="new-zone-name-input" class="form-input" placeholder="Например: Третий этаж или Кухня" />
+          <button class="ios-btn primary" style="flex:0 0 auto; padding:10px 14px;" onclick="addNewZone()">Добавить</button>
+        </div>
+      </div>
+
+      <div id="zones-manager-list"></div>
+    </div>
+  </div>
 
   <!-- ==================== MODAL: FINISH WORKDAY ==================== -->
   <div class="modal-backdrop" id="modal-finish-day" onclick="closeModalOnBackdrop(event, 'modal-finish-day')">
@@ -1330,8 +1463,8 @@
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Этаж / зона</label>
-        <input type="text" id="tf-zone" class="form-input" list="zones-datalist" placeholder="Выберите или введите новую зону" />
+        <label class="form-label">Этаж / зона (можно выбрать или вписать новую)</label>
+        <input type="text" id="tf-zone" class="form-input" list="zones-datalist" placeholder="Например: Первый этаж" />
         <datalist id="zones-datalist"></datalist>
       </div>
       <div class="form-group">
@@ -1405,7 +1538,7 @@
 
   <script>
     /* =========================================================================
-       1. PWA MANIFEST & SERVICE WORKER (HTTPS READY)
+       1. PWA MANIFEST, DARK/LIGHT THEME SYNC & SERVICE WORKER
     ========================================================================= */
     (function initPWA() {
       const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#007AFF"/><path d="M152 264l68 68 140-148" fill="none" stroke="#FFFFFF" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -1433,6 +1566,15 @@
       manifestLink.rel = 'manifest';
       manifestLink.href = URL.createObjectURL(manifestBlob);
       document.head.appendChild(manifestLink);
+
+      // Sync iOS status bar style with system dark/light mode
+      const darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
+      function updateStatusBarTheme(e) {
+        const metaStatus = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+        if (metaStatus) metaStatus.setAttribute('content', e.matches ? 'black' : 'default');
+      }
+      updateStatusBarTheme(darkMedia);
+      if (darkMedia.addEventListener) darkMedia.addEventListener('change', updateStatusBarTheme);
 
       if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
         navigator.serviceWorker.register('./sw.js').catch(err => {
@@ -1537,7 +1679,7 @@
       return {
         version: 3,
         activeClientId: 'client_main',
-        viewMode: 'today', // 'today' | 'all'
+        viewMode: 'today',
         activePeriod: 'daily',
         taskFilter: 'all',
         editMode: false,
@@ -1548,7 +1690,6 @@
         finYear: new Date().getFullYear(),
         finMonth: new Date().getMonth(),
         collapsedZones: {},
-        // Pinned extra/on-demand tasks for specific visit: { "clientId_YYYY-MM-DD": ["taskId", ...] }
         pinnedForVisit: {},
         clients: [
           {
@@ -1559,6 +1700,7 @@
             duration: 'целый день',
             baseRate: 12000,
             color: '#007AFF',
+            customZones: ['Минус 1 этаж', 'Первый этаж', 'Второй этаж', 'Общее по дому'],
             tasks: JSON.parse(JSON.stringify(DEFAULT_MAIN_TASKS))
           },
           {
@@ -1569,6 +1711,7 @@
             duration: 'полдня',
             baseRate: 5000,
             color: '#34C759',
+            customZones: ['Кухня', 'Гостиная', 'Спальня', 'Санузел'],
             tasks: []
           },
           {
@@ -1579,6 +1722,7 @@
             duration: 'целый день',
             baseRate: 10000,
             color: '#AF52DE',
+            customZones: ['Первый этаж', 'Второй этаж', 'Общее по дому'],
             tasks: []
           }
         ],
@@ -1607,6 +1751,9 @@
         if (!parsed.viewMode) parsed.viewMode = 'today';
         if (!parsed.checklistDate) parsed.checklistDate = toISODate(new Date());
         if (!parsed.selectedCalDate) parsed.selectedCalDate = toISODate(new Date());
+        parsed.clients.forEach(c => {
+          if (!Array.isArray(c.customZones)) c.customZones = [];
+        });
         return parsed;
       } catch (e) {
         return getDefaultState();
@@ -1660,6 +1807,12 @@
       return c;
     }
 
+    function getAllClientZones(client) {
+      const set = new Set(client.customZones || []);
+      client.tasks.forEach(t => { if (t.zone) set.add(t.zone); });
+      return Array.from(set);
+    }
+
     function getPinnedKey(clientId, dateStr) {
       return `${clientId}_${dateStr}`;
     }
@@ -1705,7 +1858,6 @@
         };
       }
 
-      // Daily tasks: always due on every visit
       if (task.period === 'daily') {
         return {
           checkedToday: false,
@@ -1716,7 +1868,6 @@
         };
       }
 
-      // Seasonal / On-demand: due only if pinned for today's visit
       if (task.period === 'seasonal' || task.period === 'ondemand') {
         return {
           checkedToday: false,
@@ -1727,7 +1878,6 @@
         };
       }
 
-      // Periodic tasks: weekly (7/14), monthly (30/60), quarterly (90)
       const interval = Number(task.intervalDays) || (task.period === 'weekly' ? 7 : task.period === 'monthly' ? 30 : 90);
       if (!lastLog) {
         return {
@@ -1745,7 +1895,7 @@
         return {
           checkedToday: false,
           doneInCycle: true,
-          isDueToday: pinned, // Still show in today's plan if user manually pinned it
+          isDueToday: pinned,
           lastDate: lastLog.visitDate,
           badgeText: `Сделано ${formatRuDate(lastLog.visitDate)} (через ${left} дн.)`
         };
@@ -1787,7 +1937,6 @@
         );
         if (idx !== -1) state.completions.splice(idx, 1);
       } else if (status.doneInCycle && !status.checkedToday) {
-        // Uncheck recent periodic completion if clicked in All Tasks view
         const cycleIdx = state.completions.findIndex(
           c => c.clientId === client.id && c.taskId === task.id && c.visitDate === status.lastDate
         );
@@ -1813,7 +1962,6 @@
       const client = getActiveClient();
       const targetDate = state.checklistDate;
 
-      // Get the visible tasks in this zone for the current mode
       let zoneItems = [];
       if (state.viewMode === 'today') {
         zoneItems = getTodayPlanTasks(client, targetDate).filter(x => x.task.zone === zoneName);
@@ -1828,7 +1976,6 @@
       const allDone = zoneItems.every(x => x.status.checkedToday || x.status.doneInCycle);
 
       if (allDone) {
-        // Uncheck all tasks in this zone for targetDate (or active cycle)
         zoneItems.forEach(({ task, status }) => {
           if (status.checkedToday) {
             const idx = state.completions.findIndex(
@@ -1843,7 +1990,6 @@
           }
         });
       } else {
-        // Check all remaining unchecked tasks in this zone for targetDate
         zoneItems.forEach(({ task, status }) => {
           if (!status.checkedToday && !status.doneInCycle) {
             state.completions.push({
@@ -1862,7 +2008,99 @@
     }
 
     /* =========================================================================
-       6. RENDER CHECKLIST SCREEN
+       6. ZONES / FLOORS MANAGEMENT (ADD, RENAME, DELETE)
+    ========================================================================= */
+    function openZonesManagerModal() {
+      const client = getActiveClient();
+      const zones = getAllClientZones(client);
+      const listEl = document.getElementById('zones-manager-list');
+
+      if (zones.length === 0) {
+        listEl.innerHTML = `<div class="summary-card empty-state">У этого объекта пока нет этажей или зон. Добавьте первую выше.</div>`;
+      } else {
+        listEl.innerHTML = zones.map(z => {
+          const count = client.tasks.filter(t => t.zone === z).length;
+          return `
+            <div class="zone-manage-row">
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:15px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(z)}</div>
+                <div style="font-size:12px; color:var(--text-secondary);">Задач в зоне: ${count}</div>
+              </div>
+              <button class="mini-action-btn" onclick="renameZonePrompt('${escapeAttr(z)}')" title="Переименовать">✎</button>
+              <button class="mini-action-btn delete" onclick="deleteZonePrompt('${escapeAttr(z)}')" title="Удалить">🗑</button>
+            </div>
+          `;
+        }).join('');
+      }
+      openModal('modal-zones');
+    }
+
+    function addNewZone() {
+      const client = getActiveClient();
+      const input = document.getElementById('new-zone-name-input');
+      const name = input.value.trim();
+      if (!name) return;
+
+      if (!Array.isArray(client.customZones)) client.customZones = [];
+      const existing = getAllClientZones(client);
+      if (!existing.includes(name)) {
+        client.customZones.push(name);
+      }
+      input.value = '';
+      saveState();
+      openZonesManagerModal();
+      renderChecklistScreen();
+    }
+
+    function renameZonePrompt(oldName) {
+      const client = getActiveClient();
+      const newName = prompt('Новое название этажа или зоны:', oldName);
+      if (!newName || !newName.trim() || newName.trim() === oldName) return;
+      const trimmed = newName.trim();
+
+      client.tasks.forEach(t => {
+        if (t.zone === oldName) t.zone = trimmed;
+      });
+      if (Array.isArray(client.customZones)) {
+        const idx = client.customZones.indexOf(oldName);
+        if (idx !== -1) client.customZones[idx] = trimmed;
+        else if (!client.customZones.includes(trimmed)) client.customZones.push(trimmed);
+      }
+
+      saveState();
+      openZonesManagerModal();
+      renderChecklistScreen();
+    }
+
+    function deleteZonePrompt(zoneName) {
+      const client = getActiveClient();
+      const tasksInZone = client.tasks.filter(t => t.zone === zoneName);
+      if (tasksInZone.length > 0) {
+        const otherZones = getAllClientZones(client).filter(z => z !== zoneName);
+        if (otherZones.length === 0) {
+          alert('Сначала создайте другую зону или перенесите задачи, так как это единственная зона с задачами.');
+          return;
+        }
+        const targetZone = otherZones[0];
+        if (!confirm(`В зоне «${zoneName}» есть задачи (${tasksInZone.length} шт.). Перенести их в «${targetZone}» и удалить зону?`)) return;
+        client.tasks.forEach(t => {
+          if (t.zone === zoneName) t.zone = targetZone;
+        });
+      } else {
+        if (!confirm(`Удалить пустую зону «${zoneName}»?`)) return;
+      }
+
+      if (Array.isArray(client.customZones)) {
+        client.customZones = client.customZones.filter(z => z !== zoneName);
+      }
+
+      saveState();
+      openZonesManagerModal();
+      renderChecklistScreen();
+    }
+
+    /* =========================================================================
+       7. RENDER CHECKLIST SCREEN
     ========================================================================= */
     function renderChecklistScreen() {
       const client = getActiveClient();
@@ -1881,6 +2119,7 @@
         state.checklistDate === todayStr ? `Сегодня, ${formatFullRuDate(state.checklistDate)}` : formatFullRuDate(state.checklistDate);
 
       document.getElementById('btn-edit-mode').classList.toggle('active', state.editMode);
+      document.getElementById('edit-zones-banner').style.display = state.editMode ? 'flex' : 'none';
 
       // Mode buttons
       const todayItems = getTodayPlanTasks(client, state.checklistDate);
@@ -1942,9 +2181,16 @@
         btn.classList.toggle('active', btn.dataset.filter === state.taskFilter);
       });
 
-      // Group into zones
+      // Group into zones (preserving customZones order first)
       const zonesMap = new Map();
       const allByZone = new Map();
+
+      if (state.editMode) {
+        getAllClientZones(client).forEach(z => {
+          zonesMap.set(z, []);
+          allByZone.set(z, []);
+        });
+      }
 
       currentItems.forEach(item => {
         const z = item.task.zone;
@@ -1976,6 +2222,10 @@
           const selectAllClass = allZoneDone ? 'all-done' : (partialDone ? 'partial' : '');
           const selectAllSymbol = allZoneDone ? '✓' : (partialDone ? '–' : '');
 
+          const rightHeaderPart = state.editMode
+            ? `<button type="button" class="zone-edit-btn" onclick="renameZonePrompt('${escapeAttr(zoneName)}')">✎ Зона</button>`
+            : `<span class="zone-badge ${allZoneDone ? 'done' : ''}">${zoneDone}/${zoneTotal}</span>`;
+
           html += `
             <div class="zone-group ${isCollapsed ? 'collapsed' : ''}">
               <div class="zone-header">
@@ -1987,11 +2237,14 @@
                     <span class="zone-chevron">▼</span>
                     <span class="zone-name">${escapeHtml(zoneName)}</span>
                   </div>
-                  <span class="zone-badge ${allZoneDone ? 'done' : ''}">${zoneDone}/${zoneTotal}</span>
+                  ${rightHeaderPart}
                 </div>
               </div>
               <div class="zone-tasks">
-                ${visibleItems.map(({ task, status }) => renderTaskRow(task, status)).join('')}
+                ${visibleItems.length > 0
+                  ? visibleItems.map(({ task, status }) => renderTaskRow(task, status)).join('')
+                  : `<div style="padding:12px 14px; font-size:13px; color:var(--text-secondary);">В этой зоне пока нет задач для данного раздела</div>`
+                }
               </div>
             </div>
           `;
@@ -2106,7 +2359,7 @@
     }
 
     /* =========================================================================
-       7. FINISH WORKDAY FLOW (CLOSE SHIFT + PAYMENT + CALENDAR SYNC)
+       8. FINISH WORKDAY FLOW (CLOSE SHIFT + PAYMENT + CALENDAR SYNC)
     ========================================================================= */
     let finishDayPaidState = true;
 
@@ -2130,7 +2383,7 @@
 
       if (dailyLeft > 0) {
         summaryHtml += `
-          <div style="margin-top:8px; padding:8px 10px; border-radius:8px; background:rgba(255, 149, 0, 0.14); color:#C93400; font-size:12px; font-weight:600;">
+          <div style="margin-top:8px; padding:8px 10px; border-radius:8px; background:rgba(255, 149, 0, 0.16); color:var(--accent-orange-text); font-size:12px; font-weight:600;">
             Внимание: осталось ${dailyLeft} неотмеченных ежедневных задач. Вы всё равно можете закрыть день.
           </div>
         `;
@@ -2190,7 +2443,7 @@
     }
 
     /* =========================================================================
-       8. CALENDAR & SCHEDULE ENGINE
+       9. CALENDAR & SCHEDULE ENGINE
     ========================================================================= */
     function getVisitsForDate(isoDate) {
       const dateObj = parseISODate(isoDate);
@@ -2387,9 +2640,40 @@
     }
 
     /* =========================================================================
-       9. FINANCE SCREEN
+       10. FINANCE SCREEN (WITH ALL-TIME CUMULATIVE TOTALS)
     ========================================================================= */
     function renderFinanceScreen() {
+      // 1. All-time cumulative totals across all recorded visits
+      let allTimePaid = 0;
+      let allTimeUnpaidDebt = 0;
+      let allTimeVisitsDone = 0;
+
+      state.visits.forEach(v => {
+        if (v.status === 'cancelled') return;
+        const amount = (Number(v.baseAmount) || 0) + (Number(v.extraAmount) || 0);
+        if (v.status === 'done') allTimeVisitsDone += 1;
+        if (v.paid) {
+          allTimePaid += amount;
+        } else if (v.status === 'done') {
+          allTimeUnpaidDebt += amount;
+        }
+      });
+
+      document.getElementById('fin-alltime-card').innerHTML = `
+        <div class="alltime-title">Итого за всё время (${allTimeVisitsDone} вып. визитов)</div>
+        <div class="alltime-row">
+          <div>
+            <div class="fin-label">Всего получено</div>
+            <div class="fin-value green">${allTimePaid.toLocaleString('ru-RU')} ₽</div>
+          </div>
+          <div>
+            <div class="fin-label">Общий долг клиентов</div>
+            <div class="fin-value orange">${allTimeUnpaidDebt.toLocaleString('ru-RU')} ₽</div>
+          </div>
+        </div>
+      `;
+
+      // 2. Selected month breakdown
       const year = state.finYear;
       const month = state.finMonth;
       const monthDate = new Date(year, month, 1);
@@ -2433,7 +2717,7 @@
 
       document.getElementById('fin-summary-grid').innerHTML = `
         <div class="fin-box">
-          <div class="fin-label">Получено (оплачено)</div>
+          <div class="fin-label">Получено за месяц</div>
           <div class="fin-value green">${paidSum.toLocaleString('ru-RU')} ₽</div>
         </div>
         <div class="fin-box">
@@ -2457,7 +2741,7 @@
             <div class="visit-sub">Выполнено визитов: ${item.doneCount} из ${item.count}</div>
           </div>
           <div style="text-align:right;">
-            <div class="visit-amount" style="color:#248A3D;">${item.paid.toLocaleString('ru-RU')} ₽</div>
+            <div class="visit-amount" style="color:var(--accent-green-text);">${item.paid.toLocaleString('ru-RU')} ₽</div>
             <div class="visit-sub">План: ${item.total.toLocaleString('ru-RU')} ₽</div>
           </div>
         </div>
@@ -2475,7 +2759,7 @@
     }
 
     /* =========================================================================
-       10. MODALS: CLIENTS, TASKS, NOTES, VISITS & BACKUP
+       11. MODALS: CLIENTS, TASKS, NOTES, VISITS & BACKUP
     ========================================================================= */
     function openClientsModal() {
       const container = document.getElementById('clients-list-container');
@@ -2556,6 +2840,7 @@
           duration,
           baseRate,
           color: colors[state.clients.length % colors.length],
+          customZones: ['Кухня', 'Комнаты', 'Санузел'],
           tasks: []
         };
         state.clients.push(newClient);
@@ -2588,7 +2873,7 @@
 
     function populateZonesDatalist() {
       const client = getActiveClient();
-      const zones = Array.from(new Set(client.tasks.map(t => t.zone)));
+      const zones = getAllClientZones(client);
       document.getElementById('zones-datalist').innerHTML = zones.map(z => `<option value="${escapeAttr(z)}">`).join('');
     }
 
@@ -2605,7 +2890,8 @@
       const defPeriod = state.viewMode === 'all' ? state.activePeriod : 'daily';
       document.getElementById('tf-period').value = defPeriod;
       onTaskPeriodSelectChange(defPeriod);
-      document.getElementById('tf-zone').value = '';
+      const zones = getAllClientZones(getActiveClient());
+      document.getElementById('tf-zone').value = zones[0] || '';
       document.getElementById('tf-schedule').value = '';
       openModal('modal-task-form');
     }
@@ -2636,6 +2922,9 @@
 
       if (!text) { alert('Введите текст задачи'); return; }
 
+      if (!Array.isArray(client.customZones)) client.customZones = [];
+      if (!client.customZones.includes(zone)) client.customZones.push(zone);
+
       if (id) {
         const task = client.tasks.find(t => t.id === id);
         if (task) {
@@ -2656,7 +2945,6 @@
           note: ''
         };
         client.tasks.push(newTask);
-        // If added as ondemand/seasonal while in today mode, pin it to today automatically
         if ((period === 'ondemand' || period === 'seasonal') && state.viewMode === 'today') {
           const key = getPinnedKey(client.id, state.checklistDate);
           if (!state.pinnedForVisit[key]) state.pinnedForVisit[key] = [];
